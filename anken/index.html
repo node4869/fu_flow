@@ -255,6 +255,52 @@
     .copy-btn:active { transform: scale(0.96); }
     .copy-btn.done { background: var(--gold); }
 
+
+    /* ── TIPS BLOCK ── */
+    .tips-block {
+      background: var(--gold-light);
+      border: 1px solid #e2d4b0;
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      margin-bottom: 14px;
+    }
+    .tips-block-title {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--gold);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tips-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .tips-list li {
+      font-size: 13px;
+      color: #5a4520;
+      line-height: 1.65;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .tip-label {
+      flex-shrink: 0;
+      background: var(--gold);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      margin-top: 2px;
+      white-space: nowrap;
+    }
+    .tip-ex { color: var(--gold); font-weight: 700; }
+
     .purpose-text { font-size: 14px; color: var(--muted); line-height: 1.85; }
 
     .footer { text-align: center; font-size: 12px; color: #bbb; margin-top: 48px; }
@@ -264,6 +310,94 @@
       .wrap { padding: 36px 16px 60px; }
       .section { padding: 20px 18px; }
     }
+
+    /* ── AI AUTO-FILL ── */
+    .ai-fill-block {
+      background: linear-gradient(135deg, #eef4f2 0%, #f5f0e8 100%);
+      border: 1.5px solid #c8dbd7;
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      margin-bottom: 16px;
+    }
+    .ai-fill-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--green-mid);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ai-fill-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+    }
+    .ai-msg-input {
+      flex: 1;
+      min-height: 90px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      font-size: 13px;
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--text);
+      background: var(--white);
+      resize: vertical;
+      line-height: 1.7;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+    .ai-msg-input:focus { border-color: var(--green-mid); }
+    .ai-msg-input::placeholder { color: #b0aca4; }
+    .ai-run-btn {
+      flex-shrink: 0;
+      background: var(--green-mid);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      padding: 0 18px;
+      height: 90px;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.18s, transform 0.1s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-width: 72px;
+      line-height: 1.4;
+    }
+    .ai-run-btn:hover { background: var(--green-dark); }
+    .ai-run-btn:active { transform: scale(0.97); }
+    .ai-run-btn:disabled { background: #aaa; cursor: not-allowed; }
+    .ai-run-btn svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .ai-status {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+      min-height: 18px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ai-status.loading { color: var(--green-mid); }
+    .ai-status.success { color: #2a7a4e; }
+    .ai-status.error   { color: #b94040; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 13px; height: 13px;
+      border: 2px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
   </style>
 </head>
 <body>
@@ -382,9 +516,38 @@
   <!-- 案件入力シート -->
   <div class="section">
     <div class="section-title"><span class="icon">📋</span>案件入力シート</div>
-    <p class="copy-hint">情報を埋めてから、生成プロンプトの末尾に貼り付けてください。</p>
+
+    <!-- AI自動入力 -->
+    <div class="ai-fill-block">
+      <div class="ai-fill-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        AI自動入力 — 先方からのメッセージを貼るだけで項目を自動で埋めます
+      </div>
+      <div class="ai-fill-row">
+        <textarea id="aiMsgInput" class="ai-msg-input" placeholder="先方から受け取ったメッセージやメモをここに貼り付けてください。&#10;例）「大阪市内の施設で毎週火曜10時〜、高齢者向けの体操指導をお願いしたいです。報酬は1回8,000円、交通費支給。健康運動指導士優遇。」"></textarea>
+        <button class="ai-run-btn" id="aiRunBtn" onclick="autoFill()">
+          <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          自動入力
+        </button>
+      </div>
+      <div class="ai-status" id="aiStatus"></div>
+    </div>
+
+    <div class="tips-block">
+      <div class="tips-block-title">✏️ &nbsp;書き方のポイント</div>
+      <ul class="tips-list">
+        <li><span class="tip-label">案件名</span><span>場所＋内容が一言でわかる名前に。<span class="tip-ex">例）箕面市・高齢者向け運動指導</span></span></li>
+        <li><span class="tip-label">案件内容</span><span>何をするのかを具体的に。<span class="tip-ex">例）週1回、ストレッチ・体操の指導</span></span></li>
+        <li><span class="tip-label">実施日</span><span>曜日・頻度・単発かを明記。<span class="tip-ex">例）毎週火曜日／単発／月2回</span></span></li>
+        <li><span class="tip-label">報酬</span><span>1回あたりか月額かを明示。わからなければ「確認中」でOK。</span></li>
+        <li><span class="tip-label">確定 / 未確定</span><span>決まっていることと調整中のことを分けて書く。AIが断定を避けた文章を生成してくれます。</span></li>
+        <li><span class="tip-label">補足</span><span>「まず話を聞くだけでもOK」など、ハードルを下げる一言を入れると効果的。</span></li>
+      </ul>
+    </div>
+
+    <p class="copy-hint">内容を確認・修正してから、生成プロンプトの末尾に貼り付けてください。</p>
     <div class="copy-wrap">
-      <pre class="copy-pre" id="inputSheet">【案件入力シート】
+      <pre class="copy-pre" id="inputSheet" contenteditable="true" spellcheck="false">【案件入力シート】
 案件名：
 案件内容：
 実施場所：
@@ -411,6 +574,16 @@
   <!-- 生成プロンプト -->
   <div class="section">
     <div class="section-title"><span class="icon">🤖</span>生成プロンプト（AI用）</div>
+    <div class="tips-block">
+      <div class="tips-block-title">🤖 &nbsp;プロンプトの使い方</div>
+      <ul class="tips-list">
+        <li><span class="tip-label">STEP 1</span><span>下のテキストをまるごとコピーする。</span></li>
+        <li><span class="tip-label">STEP 2</span><span>ChatGPT・Claude などのAIチャットに貼り付ける。</span></li>
+        <li><span class="tip-label">STEP 3</span><span>プロンプトの末尾「ここに運営担当者が入力した案件情報を貼り付ける」の部分を、記入済みの<strong>案件入力シートの内容に置き換える</strong>。</span></li>
+        <li><span class="tip-label">STEP 4</span><span>送信して生成された文章を確認し、誤りがなければオープンチャットに投稿する。</span></li>
+        <li><span class="tip-label">ポイント</span><span>未確定の項目は「確認中」と入力しておくと、AIが自然に濁した表現を使ってくれます。</span></li>
+      </ul>
+    </div>
     <p class="copy-hint">コピーしてAIに貼り付け、末尾に記入済みの入力シートを追加してください。</p>
     <div class="copy-wrap">
       <pre class="copy-pre" id="prompt">あなたは、トレーナー・インストラクター向けの紹介案件を、オープンチャットで見やすく・伝わりやすく整える編集者です。以下の【案件入力シート】をもとに、オープンチャット投稿用の案内文を作成してください。
@@ -500,6 +673,7 @@
 
 </div>
 <script>
+  /* ── コピーボタン ── */
   function doCopy(id, btn) {
     const text = document.getElementById(id).innerText;
     navigator.clipboard.writeText(text).then(ok, fallback);
@@ -513,6 +687,101 @@
     function flash(b) {
       b.textContent = '✓ コピーしました'; b.classList.add('done');
       setTimeout(() => { b.textContent = 'コピー'; b.classList.remove('done'); }, 2000);
+    }
+  }
+
+  /* ── AI自動入力 ── */
+  const FIELDS = [
+    '案件名','案件内容','実施場所','対象者','実施日','実施時間',
+    '所要時間','報酬','交通費','募集人数','必要資格','必要経験',
+    '服装・持ち物','先方が求めている人','確定していること',
+    '未確定のこと','応募締切','連絡方法','補足'
+  ];
+
+  function setStatus(msg, type) {
+    const el = document.getElementById('aiStatus');
+    el.className = 'ai-status ' + (type || '');
+    el.innerHTML = type === 'loading'
+      ? '<span class="spinner"></span>' + msg
+      : msg;
+  }
+
+  async function autoFill() {
+    const msg = document.getElementById('aiMsgInput').value.trim();
+    if (!msg) { setStatus('先方からのメッセージを入力してください。', 'error'); return; }
+
+    const btn = document.getElementById('aiRunBtn');
+    btn.disabled = true;
+    setStatus('AIが解析中です...', 'loading');
+
+    const systemPrompt = `あなたは案件情報の抽出アシスタントです。
+ユーザーが貼り付けた先方からのメッセージを読み取り、以下の項目を抽出してください。
+情報がない・不明な項目は空欄のままにしてください（「不明」「なし」などは書かない）。
+必ず以下のJSONのみを返してください。余分な説明やマークダウンは一切不要です。
+
+{
+  "案件名": "",
+  "案件内容": "",
+  "実施場所": "",
+  "対象者": "",
+  "実施日": "",
+  "実施時間": "",
+  "所要時間": "",
+  "報酬": "",
+  "交通費": "",
+  "募集人数": "",
+  "必要資格": "",
+  "必要経験": "",
+  "服装・持ち物": "",
+  "先方が求めている人": "",
+  "確定していること": "",
+  "未確定のこと": "",
+  "応募締切": "",
+  "連絡方法": "",
+  "補足": ""
+}`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: msg }]
+        })
+      });
+
+      if (!res.ok) throw new Error('API error: ' + res.status);
+      const data = await res.json();
+      const raw = data.content.find(b => b.type === 'text')?.text || '';
+
+      let parsed;
+      try {
+        parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+      } catch {
+        throw new Error('レスポンスの解析に失敗しました。');
+      }
+
+      // Build updated sheet text
+      let lines = ['【案件入力シート】'];
+      for (const field of FIELDS) {
+        const val = (parsed[field] || '').trim();
+        lines.push(field + '：' + val);
+      }
+
+      const sheet = document.getElementById('inputSheet');
+      sheet.textContent = lines.join('\n');
+
+      // Highlight filled fields
+      const filled = FIELDS.filter(f => (parsed[f] || '').trim()).length;
+      setStatus(`✓ ${filled}項目を自動入力しました。内容を確認・修正してください。`, 'success');
+
+    } catch (e) {
+      setStatus('エラー：' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
     }
   }
 </script>
