@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>運営マニュアル｜フロー一覧</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark:  #1e3532;
+      --green-mid:   #2f4f4a;
+      --green-dim:   #3d6960;
+      --green-light: #eef4f2;
+      --gold:        #9a7b3f;
+      --gold-light:  #f5efe0;
+      --gold-pale:   #faf7f0;
+      --sand:        #f4f1ea;
+      --sand-dark:   #e8e3d8;
+      --white:       #ffffff;
+      --text:        #242424;
+      --muted:       #717171;
+      --border:      #dedad2;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
+      background: var(--sand);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      background: var(--green-dark);
+      padding: 64px 24px 56px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* subtle grid texture */
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    /* gold accent line top */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), #c9a76a, var(--gold));
+    }
+
+    .hero-inner {
+      max-width: 860px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      color: var(--gold);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .hero-eyebrow .dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--gold);
+      opacity: 0.6;
+    }
+
+    .hero h1 {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: clamp(30px, 6vw, 50px);
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.15;
+      letter-spacing: 0.04em;
+      margin-bottom: 16px;
+    }
+
+    .hero-sub {
+      font-size: 14px;
+      color: rgba(255,255,255,0.5);
+      line-height: 1.75;
+      max-width: 480px;
+    }
+
+    .hero-meta {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .meta-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: rgba(255,255,255,0.35);
+      text-transform: uppercase;
+    }
+
+    .meta-value {
+      font-size: 15px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.85);
+    }
+
+    .meta-sep {
+      width: 1px;
+      height: 28px;
+      background: rgba(255,255,255,0.12);
+    }
+
+    /* ── MAIN ── */
+    .main {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+    }
+
+    /* ── SECTION HEADER ── */
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .section-head h2 {
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .section-head .count {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    /* ── GRID ── */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    /* ── FLOW CARD ── */
+    .flow-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      transition: border-color 0.2s, box-shadow 0.2s, transform 0.18s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .flow-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--green-mid);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.25s ease;
+    }
+
+    .flow-card:hover {
+      border-color: var(--green-dim);
+      box-shadow: 0 8px 28px rgba(31, 60, 56, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .flow-card:hover::before { transform: scaleX(1); }
+
+    .card-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: var(--green-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .card-icon svg {
+      width: 22px;
+      height: 22px;
+      stroke: var(--green-mid);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .card-body { flex: 1; }
+
+    .card-category {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 5px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .card-desc {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .card-steps {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .card-steps .pip {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--green-mid);
+      opacity: 0.4;
+    }
+
+    .card-steps .pip.active { opacity: 1; }
+
+    .card-arrow {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: var(--green-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .flow-card:hover .card-arrow {
+      background: var(--green-mid);
+      transform: translateX(2px);
+    }
+
+    .card-arrow svg {
+      width: 13px; height: 13px;
+      stroke: var(--green-mid);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: stroke 0.2s;
+    }
+
+    .flow-card:hover .card-arrow svg { stroke: #fff; }
+
+    /* ── PLACEHOLDER CARD ── */
+    .flow-card.placeholder {
+      background: transparent;
+      border-style: dashed;
+      border-color: var(--sand-dark);
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .flow-card.placeholder:hover { transform: none; box-shadow: none; }
+    .flow-card.placeholder::before { display: none; }
+
+    .placeholder-inner {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    .placeholder-icon {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      background: var(--sand-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .placeholder-icon svg {
+      width: 18px; height: 18px;
+      stroke: var(--muted);
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+    }
+
+    .placeholder-label {
+      font-size: 12px;
+      color: var(--muted);
+      opacity: 0.7;
+    }
+
+    /* ── HOW TO ADD ── */
+    .howto {
+      background: var(--gold-pale);
+      border: 1px solid #e8dfc8;
+      border-radius: 14px;
+      padding: 22px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .howto-icon {
+      flex-shrink: 0;
+      width: 34px; height: 34px;
+      border-radius: 9px;
+      background: var(--gold-light);
+      border: 1px solid #ddd0b0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .howto-body h3 {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+      margin-bottom: 6px;
+    }
+
+    .howto-steps {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .howto-steps li {
+      font-size: 12.5px;
+      color: var(--muted);
+      display: flex;
+      gap: 7px;
+    }
+
+    .howto-steps li::before {
+      content: attr(data-n);
+      flex-shrink: 0;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+      opacity: 0.5;
+      padding-bottom: 40px;
+    }
+
+    /* ── FADE IN ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(14px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .flow-card { animation: fadeUp 0.4s ease both; }
+    .flow-card:nth-child(1) { animation-delay: 0.05s; }
+    .flow-card:nth-child(2) { animation-delay: 0.12s; }
+    .flow-card:nth-child(3) { animation-delay: 0.19s; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 540px) {
+      .hero { padding: 48px 20px 40px; }
+      .hero-meta { flex-wrap: wrap; gap: 14px; }
+      .main { padding: 36px 16px 60px; }
+      .howto { flex-direction: column; gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-inner">
+      <div class="hero-eyebrow">
+        <span class="dot"></span>
+        Operations Manual
+        <span class="dot"></span>
+      </div>
+      <h1>運営マニュアル</h1>
+      <p class="hero-sub">フロー・マニュアルをまとめたナビゲーションページです。各フォルダを開いて業務フローを確認してください。</p>
+      <div class="hero-meta">
+        <div class="meta-item">
+          <span class="meta-label">フロー数</span>
+          <span class="meta-value" id="flow-count">1</span>
+        </div>
+        <div class="meta-sep"></div>
+        <div class="meta-item">
+          <span class="meta-label">最終更新</span>
+          <span class="meta-value" id="last-updated">—</span>
+        </div>
+        <div class="meta-sep"></div>
+        <div class="meta-item">
+          <span class="meta-label">対象</span>
+          <span class="meta-value">運営スタッフ</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <div class="section-head">
+      <h2>フロー一覧</h2>
+      <span class="count" id="count-label">1 件</span>
+    </div>
+
+    <div class="grid" id="flow-grid">
+
+      <!-- ── 案件紹介フロー ── -->
+      <a class="flow-card" href="case-flow.html">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h4"/></svg>
+        </div>
+        <div class="card-body">
+          <div class="card-category">案件管理</div>
+          <div class="card-title">案件紹介フロー</div>
+          <div class="card-desc">案件受け取りからオープンチャット投稿、Instagram DM誘導までの8ステップ。</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-steps">
+            <span class="pip active"></span>
+            <span class="pip active"></span>
+            <span class="pip active"></span>
+            <span class="pip active"></span>
+            <span class="pip active"></span>
+            <span class="pip active"></span>
+            <span class="pip active"></span>
+            <span class="pip active"></span>
+            &nbsp;8 ステップ
+          </div>
+          <div class="card-arrow">
+            <svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </div>
+        </div>
+      </a>
+
+      <!-- ── 追加予定プレースホルダー × 2 ── -->
+      <div class="flow-card placeholder">
+        <div class="placeholder-inner">
+          <div class="placeholder-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <span class="placeholder-label">フローを追加予定</span>
+        </div>
+      </div>
+
+      <div class="flow-card placeholder">
+        <div class="placeholder-inner">
+          <div class="placeholder-icon">
+            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <span class="placeholder-label">フローを追加予定</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- フロー追加の手引き -->
+    <div class="howto">
+      <div class="howto-icon">💡</div>
+      <div class="howto-body">
+        <h3>新しいフローを追加するには</h3>
+        <ul class="howto-steps">
+          <li data-n="1">新しいフローのHTMLファイルを同じフォルダに保存する（例：member-flow.html）</li>
+          <li data-n="2">このindex.htmlの「フロー一覧」に <code>&lt;a class="flow-card" href="..."&gt;</code> のカードをコピーして追加する</li>
+          <li data-n="3">カードのタイトル・説明・ステップ数・アイコンを書き換える</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">運営マニュアル｜フロー一覧</div>
+
+  <script>
+    // 日付を自動セット
+    const d = new Date();
+    const ymd = `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+    document.getElementById('last-updated').textContent = ymd;
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>案件紹介フロー｜運営用</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green-dark:  #243f3b;
+      --green-mid:   #2f4f4a;
+      --green-light: #eef4f2;
+      --gold:        #9a7b3f;
+      --gold-light:  #f5efe0;
+      --sand:        #f7f4ed;
+      --white:       #ffffff;
+      --text:        #2a2a2a;
+      --muted:       #6b6b6b;
+      --border:      #e4e0d8;
+      --radius-lg:   16px;
+      --radius-md:   10px;
+    }
+
+    body {
+      font-family: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
+      background: var(--sand);
+      color: var(--text);
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 56px 20px 80px;
+    }
+
+    /* ── HEADER ── */
+    .header { text-align: center; margin-bottom: 52px; }
+    .chip {
+      display: inline-block;
+      padding: 5px 16px;
+      border-radius: 999px;
+      background: var(--gold-light);
+      color: var(--gold);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: clamp(26px, 5vw, 38px);
+      font-weight: 700;
+      color: var(--green-dark);
+      letter-spacing: 0.03em;
+      line-height: 1.25;
+    }
+    .lead { margin-top: 14px; font-size: 14px; color: var(--muted); }
+
+    /* ── FLOW ── */
+    .flow { display: flex; flex-direction: column; margin-bottom: 48px; }
+
+    .step { display: flex; align-items: stretch; }
+
+    .spine {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+      width: 48px;
+    }
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--green-mid);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .step-num.insta { background: linear-gradient(135deg, #f09433, #dc2743, #bc1888); }
+    .step-line {
+      width: 2px;
+      flex: 1;
+      background: var(--border);
+      margin: 4px 0;
+      min-height: 20px;
+    }
+    .step:last-child .step-line { display: none; }
+
+    .step-card {
+      flex: 1;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px 22px;
+      margin-bottom: 10px;
+      margin-left: 6px;
+    }
+    .step-card.insta-card { border-color: #e0b8d8; background: #fdf5fb; }
+    .step-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+    .step-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin-bottom: 5px;
+    }
+    .insta-card .step-title { color: #7b1f5e; }
+    .step-desc { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
+    .insta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 10px;
+      background: linear-gradient(90deg, #f09433, #dc2743, #bc1888);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+    }
+    .insta-badge svg { width: 12px; height: 12px; fill: #fff; }
+
+    /* ── SECTIONS ── */
+    .section {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 26px 28px;
+      margin-bottom: 18px;
+    }
+    .section-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--green-dark);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title .icon {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--green-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .msg-box {
+      background: var(--green-light);
+      border-left: 3px solid var(--green-mid);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      padding: 16px 18px;
+      font-size: 14px;
+      color: var(--green-dark);
+      line-height: 1.85;
+    }
+
+    .insta-note {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      background: #fdf5fb;
+      border: 1px solid #e0b8d8;
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+    }
+    .insta-icon-wrap {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .insta-icon-wrap svg { width: 20px; height: 20px; fill: #fff; }
+    .insta-note-text strong { display: block; font-size: 13.5px; color: #7b1f5e; margin-bottom: 4px; }
+    .insta-note-text p { font-size: 13px; color: var(--muted); line-height: 1.65; }
+
+    .rules { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .rule-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      background: var(--sand);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      font-size: 13.5px;
+      color: var(--text);
+    }
+    .rule-item::before {
+      content: '';
+      display: block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--gold);
+      flex-shrink: 0;
+      margin-top: 7px;
+    }
+
+    .copy-wrap { position: relative; }
+    .copy-hint { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+    .copy-pre {
+      background: var(--sand);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 18px 18px 52px;
+      font-size: 13px;
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--text);
+      white-space: pre-wrap;
+      line-height: 1.9;
+      overflow-x: auto;
+      margin: 0;
+    }
+    .copy-btn {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: var(--green-mid);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 18px;
+      font-size: 12px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.18s, transform 0.1s;
+      letter-spacing: 0.04em;
+    }
+    .copy-btn:hover { background: var(--green-dark); }
+    .copy-btn:active { transform: scale(0.96); }
+    .copy-btn.done { background: var(--gold); }
+
+    .purpose-text { font-size: 14px; color: var(--muted); line-height: 1.85; }
+
+    .footer { text-align: center; font-size: 12px; color: #bbb; margin-top: 48px; }
+
+    @media (max-width: 520px) {
+      .rules { grid-template-columns: 1fr; }
+      .wrap { padding: 36px 16px 60px; }
+      .section { padding: 20px 18px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="header">
+    <div class="chip">運営用マニュアル</div>
+    <h1>案件紹介フロー</h1>
+    <p class="lead">案件情報を受け取ってから、オープンチャットで希望者を募り、Instagram DMへつなぐまでの流れです。</p>
+  </div>
+
+  <div class="flow">
+
+    <div class="step">
+      <div class="spine"><div class="step-num">1</div><div class="step-line"></div></div>
+      <div class="step-card">
+        <div class="step-label">STEP 1</div>
+        <div class="step-title">案件を受け取る</div>
+        <div class="step-desc">場所・曜日・時間・報酬・対象者など、最低限の条件を確認します。</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="spine"><div class="step-num">2</div><div class="step-line"></div></div>
+      <div class="step-card">
+        <div class="step-label">STEP 2</div>
+        <div class="step-title">入力シートに記入</div>
+        <div class="step-desc">専用の案件入力シートに、端的な情報だけを整理して入力します。</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="spine"><div class="step-num">3</div><div class="step-line"></div></div>
+      <div class="step-card">
+        <div class="step-label">STEP 3</div>
+        <div class="step-title">AIに貼り付けて案内文を生成</div>
+        <div class="step-desc">入力した案件情報をプロンプトに貼り付け、案内文を作成します。</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="spine"><div class="step-num">4</div><div class="step-line"></div></div>
+      <div class="step-card">
+        <div class="step-label">STEP 4</div>
+        <div class="step-title">案内文を確認</div>
+        <div class="step-desc">未確定情報の断定や、報酬・条件の誤りがないか確認します。</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="spine"><div class="step-num">5</div><div class="step-line"></div></div>
+      <div class="step-card">
+        <div class="step-label">STEP 5</div>
+        <div class="step-title">オープンチャットに投稿</div>
+        <div class="step-desc">完成した案内文を投稿し、「希望」とコメントしてもらう形にします。</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="spine"><div class="step-num">6</div><div class="step-line"></div></div>
+      <div class="step-card">
+        <div class="step-label">STEP 6</div>
+        <div class="step-title">希望者を把握・管理</div>
+        <div class="step-desc">コメントした人を運営側で確認し、対応漏れがないよう管理します。</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="spine"><div class="step-num insta">7</div><div class="step-line"></div></div>
+      <div class="step-card insta-card">
+        <div class="step-label">STEP 7</div>
+        <div class="step-title">Instagram DMへ誘導</div>
+        <div class="step-desc">希望者をInstagram DMへ案内し、個別でやり取りを開始します。</div>
+        <span class="insta-badge">
+          <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.326 3.608 1.301.975.975 1.24 2.242 1.301 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.326 2.633-1.301 3.608-.975.975-2.242 1.24-3.608 1.301-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.326-3.608-1.301-.975-.975-1.24-2.242-1.301-3.608C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.062-1.366.326-2.633 1.301-3.608.975-.975 2.242-1.24 3.608-1.301C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.333.014 7.053.072 5.775.131 4.602.421 3.635 1.388 2.668 2.355 2.378 3.528 2.319 4.806 2.261 6.086 2.247 6.494 2.247 12c0 5.506.014 5.914.072 7.194.059 1.278.349 2.451 1.316 3.418.967.967 2.14 1.257 3.418 1.316C8.333 23.986 8.741 24 12 24c3.259 0 3.667-.014 4.947-.072 1.278-.059 2.451-.349 3.418-1.316.967-.967 1.257-2.14 1.316-3.418.058-1.28.072-1.688.072-7.194 0-5.506-.014-5.914-.072-7.194-.059-1.278-.349-2.451-1.316-3.418C20.398.421 19.225.131 17.947.072 16.667.014 16.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+          Instagram DM
+        </span>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="spine"><div class="step-num">8</div></div>
+      <div class="step-card">
+        <div class="step-label">STEP 8</div>
+        <div class="step-title">詳細調整・マッチングへ</div>
+        <div class="step-desc">条件確認・適性確認・先方共有を行い、マッチングへ進めます。</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Instagram DM 理由 -->
+  <div class="section">
+    <div class="section-title"><span class="icon">📌</span>なぜ Instagram DM？</div>
+    <div class="insta-note">
+      <div class="insta-icon-wrap">
+        <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.366.062 2.633.326 3.608 1.301.975.975 1.24 2.242 1.301 3.608.058 1.266.07 1.646.07 4.85s-.012 3.584-.07 4.85c-.062 1.366-.326 2.633-1.301 3.608-.975.975-2.242 1.24-3.608 1.301-1.266.058-1.646.07-4.85.07s-3.584-.012-4.85-.07c-1.366-.062-2.633-.326-3.608-1.301-.975-.975-1.24-2.242-1.301-3.608C2.175 15.584 2.163 15.204 2.163 12s.012-3.584.07-4.85c.062-1.366.326-2.633 1.301-3.608.975-.975 2.242-1.24 3.608-1.301C8.416 2.175 8.796 2.163 12 2.163zm0-2.163C8.741 0 8.333.014 7.053.072 5.775.131 4.602.421 3.635 1.388 2.668 2.355 2.378 3.528 2.319 4.806 2.261 6.086 2.247 6.494 2.247 12c0 5.506.014 5.914.072 7.194.059 1.278.349 2.451 1.316 3.418.967.967 2.14 1.257 3.418 1.316C8.333 23.986 8.741 24 12 24c3.259 0 3.667-.014 4.947-.072 1.278-.059 2.451-.349 3.418-1.316.967-.967 1.257-2.14 1.316-3.418.058-1.28.072-1.688.072-7.194 0-5.506-.014-5.914-.072-7.194-.059-1.278-.349-2.451-1.316-3.418C20.398.421 19.225.131 17.947.072 16.667.014 16.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zm0 10.162a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/></svg>
+      </div>
+      <div class="insta-note-text">
+        <strong>オープンチャットでは個人間のやり取りができないため</strong>
+        <p>希望者はInstagram DMへ誘導します。個人情報のやり取りは必ずDMで行い、インスタへの流入を増やす目的も兼ねています。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 投稿基本文 -->
+  <div class="section">
+    <div class="section-title"><span class="icon">💬</span>投稿時の基本文</div>
+    <div class="msg-box">
+      気になる方は、この投稿に「希望」とコメントください。<br>
+      こちらからInstagram DMにて詳細をご案内します。<br>
+      まずは話を聞いてみるだけでも大丈夫です。
+    </div>
+  </div>
+
+  <!-- 案件入力シート -->
+  <div class="section">
+    <div class="section-title"><span class="icon">📋</span>案件入力シート</div>
+    <p class="copy-hint">情報を埋めてから、生成プロンプトの末尾に貼り付けてください。</p>
+    <div class="copy-wrap">
+      <pre class="copy-pre" id="inputSheet">【案件入力シート】
+案件名：
+案件内容：
+実施場所：
+対象者：
+実施日：
+実施時間：
+所要時間：
+報酬：
+交通費：
+募集人数：
+必要資格：
+必要経験：
+服装・持ち物：
+先方が求めている人：
+確定していること：
+未確定のこと：
+応募締切：
+連絡方法：
+補足：</pre>
+      <button class="copy-btn" onclick="doCopy('inputSheet',this)">コピー</button>
+    </div>
+  </div>
+
+  <!-- 生成プロンプト -->
+  <div class="section">
+    <div class="section-title"><span class="icon">🤖</span>生成プロンプト（AI用）</div>
+    <p class="copy-hint">コピーしてAIに貼り付け、末尾に記入済みの入力シートを追加してください。</p>
+    <div class="copy-wrap">
+      <pre class="copy-pre" id="prompt">あなたは、トレーナー・インストラクター向けの紹介案件を、オープンチャットで見やすく・伝わりやすく整える編集者です。以下の【案件入力シート】をもとに、オープンチャット投稿用の案内文を作成してください。
+
+【目的】
+・読んだ人が「自分に合う案件か」をすぐ判断できる
+・応募の心理的ハードルを下げる
+・紹介案件としての信頼感を保つ
+・営業感を出しすぎない
+・スマホで読みやすい文章にする
+・運営からの紹介案件として自然に見える文面にする
+
+【文体】
+・丁寧で親しみやすい
+・やわらかいが、信頼感はある
+・未確定情報は断定しない
+・絵文字は使いすぎず、必要最低限
+・応募を急かしすぎない
+・「興味がある方は一度ご相談ください」という導線にする
+
+【出力構成】
+以下の形で作成してください。
+ーーーーーーーーーー
+【案件紹介】
+〇〇に関するお仕事のご案内です。
+
+本文
+
+■ 案件内容
+・
+
+■ 実施条件
+・場所：
+・日程：
+・時間：
+・報酬：
+・交通費：
+
+■ こんな方に合いそうです
+・
+
+■ この案件のポイント
+・
+
+■ 確認事項
+・
+
+■ 興味がある方へ
+気になる方は、まずはお気軽にコメントまたは個別でご連絡ください。
+詳細を確認したうえで、合いそうかどうか一緒に整理できればと思います。
+ーーーーーーーーーー
+
+【ルール】
+・入力されていない項目は無理に書かない
+・不明な項目は「確認中」「相談可能」など自然に表現する
+・報酬や条件は盛らずに正確に書く
+・専門職向けだが、堅くなりすぎない
+・最後は応募ではなく「相談」のニュアンスにする
+・そのままLINEオープンチャットに貼れる完成文にする
+
+【案件入力シート】
+ここに運営担当者が入力した案件情報を貼り付ける</pre>
+      <button class="copy-btn" onclick="doCopy('prompt',this)">コピー</button>
+    </div>
+  </div>
+
+  <!-- 運営ルール -->
+  <div class="section">
+    <div class="section-title"><span class="icon">📐</span>運営ルール</div>
+    <div class="rules">
+      <div class="rule-item">未確定情報は断定しない</div>
+      <div class="rule-item">報酬や条件は盛らずに正確に書く</div>
+      <div class="rule-item">応募を急かさず、相談ベースで受ける</div>
+      <div class="rule-item">個人情報をオープンチャット内に書かせない</div>
+      <div class="rule-item">希望者は運営側で必ず把握する</div>
+      <div class="rule-item">連絡導線はInstagram DMに統一する</div>
+    </div>
+  </div>
+
+  <!-- 目的 -->
+  <div class="section">
+    <div class="section-title"><span class="icon">🎯</span>このフローの目的</div>
+    <p class="purpose-text">案件をただ流すのではなく、メンバーが安心して反応できる形に整え、運営側も希望者を管理しやすくするための流れです。個別のやり取りをInstagram DMに集約することで、オープンチャット内の混雑を防ぎ、インスタへの流入も自然に増やします。</p>
+  </div>
+
+  <div class="footer">案件紹介フロー｜運営共有用</div>
+
+</div>
+<script>
+  function doCopy(id, btn) {
+    const text = document.getElementById(id).innerText;
+    navigator.clipboard.writeText(text).then(ok, fallback);
+    function ok() { flash(btn); }
+    function fallback() {
+      const t = document.createElement('textarea');
+      t.value = text; document.body.appendChild(t); t.select();
+      document.execCommand('copy'); document.body.removeChild(t);
+      flash(btn);
+    }
+    function flash(b) {
+      b.textContent = '✓ コピーしました'; b.classList.add('done');
+      setTimeout(() => { b.textContent = 'コピー'; b.classList.remove('done'); }, 2000);
+    }
+  }
+</script>
+</body>
+</html>
