@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>画像生成プロンプトビルダー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --green-dark:  #243f3b;
+    --green-mid:   #2f4f4a;
+    --green-light: #eef4f2;
+    --gold:        #9a7b3f;
+    --gold-light:  #f5efe0;
+    --sand:        #f7f4ed;
+    --white:       #ffffff;
+    --text:        #2a2a2a;
+    --muted:       #6b6b6b;
+    --border:      #e4e0d8;
+    --success:     #2f4f4a;
+    --radius-lg:   16px;
+    --radius-md:   10px;
+  }
+
+  body {
+    font-family: 'Noto Sans JP', 'Hiragino Sans', sans-serif;
+    background: var(--sand);
+    color: var(--text);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  .wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 56px 20px 80px;
+  }
+
+  /* ── HEADER ── */
+  .page-header { text-align: center; margin-bottom: 48px; }
+  .chip {
+    display: inline-block;
+    padding: 5px 16px;
+    border-radius: 999px;
+    background: var(--gold-light);
+    color: var(--gold);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    margin-bottom: 14px;
+  }
+  h1 {
+    font-size: clamp(24px, 5vw, 34px);
+    font-weight: 700;
+    color: var(--green-dark);
+    letter-spacing: .03em;
+    line-height: 1.25;
+  }
+  .lead { margin-top: 10px; font-size: 13px; color: var(--muted); }
+
+  /* ── PROGRESS ── */
+  .progress-wrap { margin-bottom: 36px; }
+  .progress-bar {
+    display: flex;
+    position: relative;
+    margin-bottom: 0;
+  }
+  .progress-bar::before {
+    content: '';
+    position: absolute;
+    top: 14px;
+    left: 24px;
+    right: 24px;
+    height: 1.5px;
+    background: var(--border);
+    z-index: 0;
+  }
+  .step-dot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+  }
+  .dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--muted);
+    transition: all .2s;
+    font-family: inherit;
+  }
+  .dot.active {
+    background: var(--green-mid);
+    color: #fff;
+    border-color: var(--green-mid);
+  }
+  .dot.done {
+    background: var(--green-light);
+    border-color: var(--green-mid);
+    color: var(--green-mid);
+  }
+  .dot-label {
+    font-size: 10px;
+    color: var(--muted);
+    white-space: nowrap;
+    text-align: center;
+  }
+  .dot-label.active { color: var(--green-dark); font-weight: 700; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    margin-bottom: 16px;
+  }
+
+  .step-num {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 700;
+    letter-spacing: .08em;
+    margin-bottom: 6px;
+  }
+  .step-q {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--green-dark);
+    line-height: 1.4;
+    margin-bottom: 4px;
+  }
+  .step-hint {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+
+  /* ── CHOICES ── */
+  .choices { display: grid; gap: 8px; margin-bottom: 20px; }
+  .choices.cols-2 { grid-template-columns: 1fr 1fr; }
+  .choices.cols-1 { grid-template-columns: 1fr; }
+
+  .choice {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text);
+    background: var(--white);
+    text-align: left;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: inherit;
+  }
+  .choice:hover { background: var(--green-light); border-color: var(--green-mid); }
+  .choice.selected { border: 2px solid var(--green-mid); background: var(--green-light); }
+  .choice-icon { font-size: 18px; flex-shrink: 0; width: 22px; text-align: center; }
+  .choice-label { font-weight: 700; display: block; }
+  .choice-sub { font-size: 11px; color: var(--muted); display: block; margin-top: 2px; }
+
+  /* ── MULTI (segments) ── */
+  .seg-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .seg {
+    padding: 7px 16px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    background: var(--white);
+    color: var(--muted);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .15s;
+  }
+  .seg:hover { background: var(--green-light); color: var(--green-dark); }
+  .seg.selected { border-color: var(--green-mid); color: var(--green-dark); background: var(--green-light); font-weight: 700; }
+
+  /* ── FREE INPUT ── */
+  .free-input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 12px 16px;
+    font-size: 13px;
+    font-family: inherit;
+    color: var(--text);
+    background: var(--sand);
+    resize: vertical;
+    min-height: 90px;
+    outline: none;
+    transition: border .15s;
+    margin-bottom: 20px;
+  }
+  .free-input:focus { border-color: var(--green-mid); background: var(--white); }
+
+  /* ── BUTTONS ── */
+  .btn-row { display: flex; gap: 8px; justify-content: flex-end; }
+  .btn {
+    padding: 10px 22px;
+    border-radius: var(--radius-md);
+    font-size: 13px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all .15s;
+    letter-spacing: .04em;
+  }
+  .btn-back {
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+  }
+  .btn-back:hover { background: var(--sand); }
+  .btn-next {
+    border: 1px solid var(--green-mid);
+    background: var(--green-mid);
+    color: #fff;
+  }
+  .btn-next:hover { background: var(--green-dark); border-color: var(--green-dark); }
+  .btn-next:disabled { opacity: .35; cursor: not-allowed; }
+  .btn-next:active:not(:disabled) { transform: scale(.97); }
+
+  /* ── RESULT ── */
+  .result-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .result-head {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--green-light);
+  }
+  .result-title { font-size: 14px; font-weight: 700; color: var(--green-dark); }
+  .done-tag {
+    font-size: 10px;
+    padding: 3px 12px;
+    border-radius: 999px;
+    background: var(--green-mid);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: .06em;
+  }
+  .result-body { padding: 24px; display: flex; flex-direction: column; gap: 14px; }
+
+  .prompt-block {
+    background: var(--sand);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 16px 18px;
+  }
+  .prompt-block.tip-block {
+    background: var(--gold-light);
+    border-color: #e2d4b0;
+  }
+  .prompt-section {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .tip-block .prompt-section { color: var(--gold); }
+  .prompt-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.8;
+    white-space: pre-wrap;
+    word-break: break-all;
+    font-family: 'Noto Sans JP', monospace;
+  }
+  .tip-block .prompt-text { color: #5a4520; }
+
+  .copy-btn {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: transparent;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .15s;
+    letter-spacing: .04em;
+  }
+  .copy-btn:hover { background: var(--green-light); color: var(--green-dark); border-color: var(--green-mid); }
+  .copy-btn.done { color: var(--green-mid); border-color: var(--green-mid); background: var(--green-light); }
+
+  .restart-btn {
+    padding: 9px 20px;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    font-weight: 700;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: inherit;
+    transition: all .15s;
+    align-self: center;
+  }
+  .restart-btn:hover { background: var(--sand); color: var(--text); }
+
+  /* ── LOADING ── */
+  .ai-loading {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--muted);
+    font-size: 13px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+  }
+  .spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border);
+    border-top-color: var(--green-mid);
+    border-radius: 50%;
+    animation: spin .7s linear infinite;
+    vertical-align: middle;
+    margin-right: 10px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── API KEY NOTICE ── */
+  .api-notice {
+    background: var(--gold-light);
+    border: 1px solid #e2d4b0;
+    border-radius: var(--radius-md);
+    padding: 14px 18px;
+    font-size: 12px;
+    color: #5a4520;
+    margin-bottom: 24px;
+    line-height: 1.7;
+  }
+  .api-notice strong { color: var(--gold); }
+  .api-key-row { display: flex; gap: 8px; margin-top: 10px; }
+  .api-key-input {
+    flex: 1;
+    border: 1px solid #e2d4b0;
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    font-size: 12px;
+    font-family: monospace;
+    background: var(--white);
+    color: var(--text);
+    outline: none;
+  }
+  .api-key-input:focus { border-color: var(--gold); }
+  .api-key-btn {
+    padding: 8px 16px;
+    background: var(--gold);
+    color: #fff;
+    border: none;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 48px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .06em;
+  }
+
+  @media (max-width: 480px) {
+    .choices.cols-2 { grid-template-columns: 1fr; }
+    .wrap { padding: 32px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="page-header">
+    <div class="chip">IMAGE PROMPT BUILDER</div>
+    <h1>画像生成プロンプトビルダー</h1>
+    <p class="lead">質問に答えるだけで、どの画像AIにも使えるプロンプトが完成します</p>
+  </div>
+
+  <div class="api-notice" id="apiNotice">
+    <strong>Anthropic APIキーが必要です</strong><br>
+    プロンプトの自動生成にClaude APIを使用します。<a href="https://console.anthropic.com/" target="_blank" style="color:var(--gold)">console.anthropic.com</a> で取得したキーを入力してください。キーはブラウザのローカルストレージにのみ保存されます。
+    <div class="api-key-row">
+      <input type="password" class="api-key-input" id="apiKeyInput" placeholder="sk-ant-...">
+      <button class="api-key-btn" onclick="saveKey()">保存</button>
+    </div>
+    <div id="keyStatus" style="font-size:11px;margin-top:6px;color:var(--green-mid)"></div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+
+  <div id="stepArea"></div>
+  <div id="resultArea"></div>
+
+  <div class="footer">画像生成プロンプトビルダー &nbsp;|&nbsp; FU EVENT TOOLS</div>
+</div>
+
+<script>
+  /* ── API KEY ── */
+  let API_KEY = localStorage.getItem('anthropic_api_key') || '';
+  if (API_KEY) {
+    document.getElementById('apiKeyInput').value = API_KEY;
+    document.getElementById('keyStatus').textContent = '✓ APIキーが保存されています';
+    document.getElementById('apiNotice').style.borderColor = '#9a7b3f';
+  }
+  function saveKey() {
+    const k = document.getElementById('apiKeyInput').value.trim();
+    if (!k.startsWith('sk-')) { document.getElementById('keyStatus').textContent = '⚠ 正しいキーを入力してください'; return; }
+    API_KEY = k;
+    localStorage.setItem('anthropic_api_key', k);
+    document.getElementById('keyStatus').textContent = '✓ 保存しました';
+  }
+
+  /* ── STEPS DATA ── */
+  const STEPS = [
+    {
+      id: 'purpose', label: '目的',
+      q: 'この画像を何に使いますか？',
+      hint: '用途によってスタイルの方向性が決まります',
+      type: 'choice', cols: 1,
+      choices: [
+        { icon: '📢', label: '告知・チラシの背景', sub: 'イベント・SNS投稿用の雰囲気画像', val: 'event flyer background, atmospheric scene' },
+        { icon: '👤', label: '人物・交流シーン', sub: 'メンバーや場の雰囲気を表す写真風', val: 'people interacting, candid social scene' },
+        { icon: '🏷', label: 'ブランド・アイコン', sub: 'ロゴ周辺やプロフィール用のビジュアル', val: 'brand visual, icon, logo background' },
+        { icon: '📱', label: 'SNS投稿の差し込み画像', sub: 'Instagram・X向けの正方形・縦長', val: 'social media post image, Instagram-ready' },
+        { icon: '✏️', label: 'その他・自由に決める', sub: 'ジャンルを自分で指定する', val: 'general purpose image' },
+      ]
+    },
+    {
+      id: 'mood', label: '雰囲気',
+      q: 'どんな雰囲気にしたいですか？',
+      hint: '複数選べます',
+      type: 'multi',
+      choices: [
+        { icon: '🔥', label: 'あたたかい・ぬくもり', val: 'warm and cozy, golden lighting' },
+        { icon: '🌿', label: '自然・アウトドア', val: 'natural outdoors, organic feel' },
+        { icon: '🌙', label: '夜・落ち着いた', val: 'night scene, calm, moody' },
+        { icon: '✨', label: 'スタイリッシュ・洗練', val: 'stylish, refined, minimal' },
+        { icon: '🤝', label: '交流・にぎやか', val: 'social gathering, lively, friendly' },
+        { icon: '💪', label: '力強い・エネルギー', val: 'energetic, powerful, dynamic' },
+      ]
+    },
+    {
+      id: 'subject', label: '被写体',
+      q: '画像の中心に何を置きますか？',
+      hint: '主役となる要素を選んでください',
+      type: 'choice', cols: 1,
+      choices: [
+        { icon: '🌅', label: '風景・場所', sub: '河川敷・カフェ・自然など空間そのもの', val: 'scenic landscape, no people, atmospheric location' },
+        { icon: '👥', label: '人物が主役', sub: 'グループや交流している様子', val: 'group of people interacting, candid moment' },
+        { icon: '🔥', label: 'モノ・小道具', sub: '焚き火・道具・食事など象徴的なアイテム', val: 'object as hero, detailed close-up, symbolic item' },
+        { icon: '🔤', label: 'テキスト中心', sub: '文字やタイポグラフィが主体', val: 'typography-focused, text as visual element, clean layout' },
+        { icon: '🎨', label: '抽象・テクスチャ', sub: '背景素材として使える質感・グラフィック', val: 'abstract texture, background pattern, no focal point' },
+      ]
+    },
+    {
+      id: 'style', label: 'スタイル',
+      q: '画像のスタイルは？',
+      hint: '画風・仕上がりのテイストを選んでください',
+      type: 'choice', cols: 2,
+      choices: [
+        { icon: '📷', label: '写真リアル', val: 'photorealistic, DSLR photography, sharp focus' },
+        { icon: '🖼', label: 'イラスト', val: 'illustration, digital art, hand-drawn feel' },
+        { icon: '🎞', label: 'フィルム風', val: 'film grain, vintage, analog photography' },
+        { icon: '⬛', label: 'ミニマル', val: 'minimal, flat design, clean lines' },
+        { icon: '🌆', label: 'シネマティック', val: 'cinematic, dramatic lighting, wide angle' },
+        { icon: '🎨', label: '水彩・アート', val: 'watercolor, painterly, artistic style' },
+      ]
+    },
+    {
+      id: 'color', label: '配色',
+      q: 'メインカラーのイメージは？',
+      hint: 'チラシや既存デザインに合わせて選んでください',
+      type: 'choice', cols: 2,
+      choices: [
+        { icon: '🌊', label: 'ネイビー × オレンジ', val: 'dark navy and orange color palette, warm accent on dark background' },
+        { icon: '🌿', label: 'ダークグリーン × ゴールド', val: 'dark green and gold color palette, earthy rich tone' },
+        { icon: '🤍', label: '白 × モノトーン', val: 'white and monochrome palette, minimal color' },
+        { icon: '🌄', label: 'アースカラー', val: 'earth tones, brown beige terracotta, natural palette' },
+        { icon: '🌸', label: 'ソフト・パステル', val: 'soft pastel colors, gentle muted hues' },
+        { icon: '⬛', label: 'ダーク・ムーディ', val: 'dark moody tones, deep shadows, low key lighting' },
+      ]
+    },
+    {
+      id: 'format', label: 'サイズ',
+      q: 'アスペクト比・サイズは？',
+      hint: '使う場所に合わせて選んでください',
+      type: 'choice', cols: 2,
+      choices: [
+        { icon: '📱', label: '縦長 4:5（Instagram）', val: '--ar 4:5' },
+        { icon: '🟥', label: '正方形 1:1（SNS）', val: '--ar 1:1' },
+        { icon: '🖥', label: '横長 16:9（バナー）', val: '--ar 16:9' },
+        { icon: '📄', label: 'A4縦（印刷）', val: '--ar 3:4' },
+        { icon: '📰', label: '横長 3:2（汎用）', val: '--ar 3:2' },
+        { icon: '✏️', label: '指定なし', val: '' },
+      ]
+    },
+    {
+      id: 'extra', label: '補足',
+      q: '追加で伝えたいことはありますか？',
+      hint: '固有名詞・テキスト・避けたい要素など（任意・スキップ可）',
+      type: 'free',
+      placeholder: '例）「焚き火を囲む4〜5人の日本人」「ロゴを入れる余白を左上に」「人の顔は映さない」など'
+    }
+  ];
+
+  let current = 0;
+  let answers = {};
+
+  /* ── PROGRESS ── */
+  function renderProgress() {
+    const bar = document.getElementById('progressBar');
+    bar.innerHTML = STEPS.map((s, i) => {
+      const cls = i < current ? 'done' : i === current ? 'active' : '';
+      return `<div class="step-dot" onclick="goTo(${i})">
+        <div class="dot ${cls}">${i < current ? '✓' : i + 1}</div>
+        <div class="dot-label ${cls}">${s.label}</div>
+      </div>`;
+    }).join('');
+  }
+
+  function goTo(i) {
+    if (i <= current) { current = i; renderStep(); }
+  }
+
+  /* ── STEP RENDER ── */
+  function renderStep() {
+    renderProgress();
+    const s = STEPS[current];
+    const prev = answers[s.id];
+    let html = '';
+
+    html += `<div class="step-num">ステップ ${current + 1} / ${STEPS.length}</div>
+      <div class="step-q">${s.q}</div>
+      <div class="step-hint">${s.hint}</div>`;
+
+    if (s.type === 'choice') {
+      const colsCls = s.cols === 2 ? 'cols-2' : 'cols-1';
+      html += `<div class="choices ${colsCls}" id="choices">`;
+      s.choices.forEach(c => {
+        const sel = prev === c.val ? 'selected' : '';
+        html += `<button class="choice ${sel}" onclick="select('${s.id}','${CSS.escape(c.val)}',this)">
+          <span class="choice-icon">${c.icon}</span>
+          <span class="choice-body">
+            <span class="choice-label">${c.label}</span>
+            ${c.sub ? `<span class="choice-sub">${c.sub}</span>` : ''}
+          </span>
+        </button>`;
+      });
+      html += `</div>`;
+    } else if (s.type === 'multi') {
+      const prevArr = Array.isArray(prev) ? prev : [];
+      html += `<div class="seg-row" id="segs">`;
+      s.choices.forEach(c => {
+        const sel = prevArr.includes(c.val) ? 'selected' : '';
+        html += `<button class="seg ${sel}" onclick="toggleSeg('${s.id}','${CSS.escape(c.val)}',this)">${c.icon} ${c.label}</button>`;
+      });
+      html += `</div>`;
+    } else if (s.type === 'free') {
+      html += `<textarea class="free-input" id="freeInput" placeholder="${s.placeholder || ''}">${prev || ''}</textarea>`;
+    }
+
+    const isReady = prev !== undefined && prev !== '' && !(Array.isArray(prev) && prev.length === 0);
+    html += `<div class="btn-row">
+      ${current > 0 ? `<button class="btn btn-back" onclick="back()">戻る</button>` : ''}
+      <button class="btn btn-next" id="nextBtn" onclick="next()" ${!isReady && s.type !== 'free' ? 'disabled' : ''}>
+        ${current === STEPS.length - 1 ? 'プロンプトを生成' : '次へ'}
+      </button>
+    </div>`;
+
+    document.getElementById('stepArea').innerHTML = `<div class="card">${html}</div>`;
+    document.getElementById('resultArea').innerHTML = '';
+  }
+
+  /* ── INTERACTIONS ── */
+  function select(id, val, el) {
+    // find actual val from choices (CSS.escape was used in render)
+    const s = STEPS[current];
+    const matched = s.choices.find(c => CSS.escape(c.val) === val || c.val === val);
+    answers[id] = matched ? matched.val : val;
+    document.querySelectorAll('.choice').forEach(b => b.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('nextBtn').disabled = false;
+  }
+
+  function toggleSeg(id, val, el) {
+    const s = STEPS[current];
+    const matched = s.choices.find(c => CSS.escape(c.val) === val || c.val === val);
+    const realVal = matched ? matched.val : val;
+    let arr = Array.isArray(answers[id]) ? [...answers[id]] : [];
+    if (arr.includes(realVal)) arr = arr.filter(v => v !== realVal);
+    else arr.push(realVal);
+    answers[id] = arr;
+    el.classList.toggle('selected');
+    document.getElementById('nextBtn').disabled = arr.length === 0;
+  }
+
+  function next() {
+    const s = STEPS[current];
+    if (s.type === 'free') {
+      answers[s.id] = document.getElementById('freeInput').value.trim();
+    }
+    if (current < STEPS.length - 1) {
+      current++; renderStep();
+    } else {
+      buildPrompt();
+    }
+  }
+
+  function back() {
+    if (current > 0) { current--; renderStep(); }
+  }
+
+  /* ── BUILD PROMPT ── */
+  async function buildPrompt() {
+    renderProgress();
+    document.getElementById('stepArea').innerHTML = '';
+    document.getElementById('resultArea').innerHTML = `
+      <div class="ai-loading">
+        <span class="spinner"></span>AIがプロンプトを生成しています...
+      </div>`;
+
+    if (!API_KEY) {
+      document.getElementById('resultArea').innerHTML = `
+        <div class="ai-loading">APIキーが設定されていません。ページ上部でキーを入力してください。</div>`;
+      return;
+    }
+
+    const a = answers;
+    const moodArr = Array.isArray(a.mood) ? a.mood : [];
+
+    const systemPrompt = `あなたは画像生成AIの英語プロンプト作成の専門家です。
+ユーザーの選択から、Midjourney・DALL-E・Stable Diffusionのいずれでも使える高品質な英語プロンプトを作成してください。
+
+以下のJSONのみを返してください（余分な説明・マークダウン不要）：
+{
+  "main": "メインプロンプト（英語、具体的で詳細、120〜200文字程度）",
+  "negative": "ネガティブプロンプト（英語、避けるべき要素を列挙、50〜100文字程度）",
+  "tip": "このプロンプトを効果的に使うための日本語ワンポイントアドバイス（2〜3文）"
+}`;
+
+    const userMessage = `目的: ${a.purpose || 'general'}
+雰囲気: ${moodArr.join(', ') || 'natural'}
+被写体: ${a.subject || 'scene'}
+スタイル: ${a.style || 'photorealistic'}
+配色: ${a.color || 'natural colors'}
+フォーマット: ${a.format || 'standard'}
+追加指示: ${a.extra || 'なし'}`;
+
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': API_KEY,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true'
+        },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: userMessage }]
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error?.message || `HTTP ${res.status}`);
+      }
+
+      const data = await res.json();
+      const raw = (data.content.find(b => b.type === 'text') || {}).text || '';
+      const p = JSON.parse(raw.replace(/```json|```/g, '').trim());
+      showResult(p);
+
+    } catch (e) {
+      document.getElementById('resultArea').innerHTML = `
+        <div class="ai-loading">
+          エラーが発生しました: ${e.message}<br>
+          <button class="restart-btn" onclick="buildPrompt()" style="margin-top:14px">再試行</button>
+        </div>`;
+    }
+  }
+
+  /* ── SHOW RESULT ── */
+  function showResult(p) {
+    const arTag = answers.format ? `\n${answers.format}` : '';
+    const fullMain = `${p.main}${arTag}`;
+
+    document.getElementById('resultArea').innerHTML = `
+      <div class="result-card">
+        <div class="result-head">
+          <span class="result-title">生成されたプロンプト</span>
+          <span class="done-tag">COMPLETE</span>
+        </div>
+        <div class="result-body">
+          <div class="prompt-block">
+            <div class="prompt-section">MAIN PROMPT</div>
+            <div class="prompt-text" id="mainPrompt">${esc(fullMain)}</div>
+          </div>
+          <div class="prompt-block">
+            <div class="prompt-section">NEGATIVE PROMPT</div>
+            <div class="prompt-text" id="negPrompt">${esc(p.negative)}</div>
+          </div>
+          <div class="prompt-block tip-block">
+            <div class="prompt-section">TIPS</div>
+            <div class="prompt-text">${esc(p.tip)}</div>
+          </div>
+          <button class="copy-btn" id="copyMain" onclick="copyText('mainPrompt','copyMain','メインプロンプトをコピー')">
+            メインプロンプトをコピー
+          </button>
+          <button class="copy-btn" onclick="copyText('negPrompt','negCopyBtn','ネガティブプロンプトをコピー')" id="negCopyBtn">
+            ネガティブプロンプトをコピー
+          </button>
+          <div style="text-align:center">
+            <button class="restart-btn" onclick="restart()">最初からやり直す</button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function esc(s) {
+    return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  function copyText(sourceId, btnId, label) {
+    const txt = document.getElementById(sourceId).textContent;
+    navigator.clipboard.writeText(txt).then(() => {
+      const b = document.getElementById(btnId);
+      b.textContent = '✓ コピーしました';
+      b.classList.add('done');
+      setTimeout(() => { b.textContent = label; b.classList.remove('done'); }, 2000);
+    });
+  }
+
+  function restart() {
+    current = 0;
+    answers = {};
+    renderStep();
+  }
+
+  /* ── INIT ── */
+  renderStep();
+</script>
+</body>
+</html>

@@ -10,10 +10,10 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --green-dark:  #1e3532;
-      --green-mid:   #2f4f4a;
-      --green-dim:   #3d6960;
-      --green-light: #eef4f2;
+      --green-dark:  #1a2a4a;
+      --green-mid:   #1e3a6e;
+      --green-dim:   #2a4f8a;
+      --green-light: #eef1f8;
       --gold:        #9a7b3f;
       --gold-light:  #f5efe0;
       --gold-pale:   #faf7f0;
@@ -206,7 +206,7 @@
 
     .flow-card:hover {
       border-color: var(--green-dim);
-      box-shadow: 0 8px 28px rgba(31, 60, 56, 0.1);
+      box-shadow: 0 8px 28px rgba(26, 42, 74, 0.1);
       transform: translateY(-2px);
     }
 
@@ -459,7 +459,7 @@
       <div class="hero-meta">
         <div class="meta-item">
           <span class="meta-label">フロー数</span>
-          <span class="meta-value" id="flow-count">1</span>
+          <span class="meta-value" id="flow-count">2</span>
         </div>
         <div class="meta-sep"></div>
         <div class="meta-item">
@@ -480,7 +480,7 @@
 
     <div class="section-head">
       <h2>フロー一覧</h2>
-      <span class="count" id="count-label">1 件</span>
+      <span class="count" id="count-label">2 件</span>
     </div>
 
     <div class="grid" id="flow-grid">
@@ -513,16 +513,34 @@
         </div>
       </a>
 
-      <!-- ── 追加予定プレースホルダー × 2 ── -->
-      <div class="flow-card placeholder">
-        <div class="placeholder-inner">
-          <div class="placeholder-icon">
-            <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
-          </div>
-          <span class="placeholder-label">フローを追加予定</span>
+      <!-- ── 画像生成プロンプトビルダー ── -->
+      <a class="flow-card" href=".claude/image_generation/index.html">
+        <div class="card-icon">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
         </div>
-      </div>
+        <div class="card-body">
+          <div class="card-category">制作ツール</div>
+          <div class="card-title">画像生成プロンプトビルダー</div>
+          <div class="card-desc">質問に答えるだけで、どの画像AIにも使えるプロンプトを自動生成します。</div>
+        </div>
+        <div class="card-footer">
+          <div class="card-steps">
+            <span class="pip active"></span>
+            <span class="pip active"></span>
+            <span class="pip active"></span>
+            <span class="pip active"></span>
+            <span class="pip active"></span>
+            <span class="pip active"></span>
+            <span class="pip active"></span>
+            &nbsp;7 ステップ
+          </div>
+          <div class="card-arrow">
+            <svg viewBox="0 0 16 16"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+          </div>
+        </div>
+      </a>
 
+      <!-- ── 追加予定プレースホルダー ── -->
       <div class="flow-card placeholder">
         <div class="placeholder-inner">
           <div class="placeholder-icon">

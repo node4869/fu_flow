@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C /Users/toseikaneko/Documents/fitnessuniversity/flow status)",
+      "Bash(git -C /Users/toseikaneko/Documents/fitnessuniversity/flow diff --stat)"
+    ]
+  }
+}
