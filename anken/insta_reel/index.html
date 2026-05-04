@@ -691,9 +691,9 @@ const HASHTAGS_BTOC = [
 
 const TOP_TITLES = [
   ['目的・内容の入力','このReelで何を伝えるかを設定します'],
-  ['台本を生成・確認','AIが撮影台本を作成します'],
+  ['台本を生成・確認','入力内容をもとに撮影台本を作成します'],
   ['動画をアップロード','素材をAIがスコアリング・自動配置します'],
-  ['キャプションを生成','AIがターゲットに刺さるコピーを生成します'],
+  ['キャプションを生成','テンプレートからキャプションを生成します'],
   ['エクスポート','編集チェックシートと投稿テキストをまとめます'],
 ];
 
@@ -719,17 +719,117 @@ function selectPillar(el, val) {
   document.getElementById('pillarVal').value = val;
 }
 
+// ══════════════ SCRIPT TEMPLATES ══════════════
+const STYLE_SCENES = {
+  'ドキュメンタリー風': [
+    { screen: (t,ev) => `冒頭テキスト「${t}」をドーン。または印象的な一瞬のカット`, audio: 'BGM立ち上がり・環境音フェードイン', memo: '0.5秒以内に目を引く。文字は大きく中央配置' },
+    { screen: (t,ev) => `会場・空間全体の引きショット${ev ? '（'+ev+'）' : ''}`, audio: 'BGM継続・自然音', memo: '場の雰囲気・規模感を伝える。スロー or 通常速度' },
+    { screen: (t,ev) => '食材・道具・手元など印象的なディテール', audio: 'BGM継続', memo: 'クローズアップ・マクロで質感を出す' },
+    { screen: (t,ev) => '参加者の自然な表情・対話シーン', audio: 'BGM＋会話がうっすら聞こえる程度', memo: '笑顔・うなずき・驚きを切り取る' },
+    { screen: (t,ev) => 'イベントのハイライトシーン・最も伝えたい瞬間', audio: 'BGMが少し盛り上がる', memo: '最も伝えたいシーンを丁寧に' },
+    { screen: (t,ev,nx,cta) => `締めテキスト${nx ? '「次回 '+nx+'」' : ''}＋${cta==='フォロー'?'フォローCTA':'リンクCTA'}`, audio: 'BGMフェードアウト', memo: 'ロゴまたはアカウント名を出す' },
+  ],
+  'イベントダイジェスト': [
+    { screen: (t,ev) => `「${t}」テキスト or 会場入り口・看板のカット`, audio: 'BGM・にぎやかな効果音', memo: 'テンポ感で始める' },
+    { screen: (t,ev) => `会場全景、集まった人たちの様子${ev ? '（'+ev+'）' : ''}`, audio: 'BGM継続', memo: '広角で雰囲気を一発で伝える' },
+    { screen: (t,ev) => '料理・テーブル・飾りつけなどのディテール', audio: 'BGM継続', memo: 'テンポよく2〜3カット切り替え' },
+    { screen: (t,ev) => '笑顔・乾杯・会話など人の瞬間', audio: 'BGM＋歓声を強調', memo: 'ライブ感を大切に' },
+    { screen: (t,ev) => 'ベストショット・集合・一番の見せ場', audio: 'BGMが盛り上がる', memo: 'このカットが記憶に残るよう丁寧に' },
+    { screen: (t,ev,nx,cta) => `次回告知${nx ? '「'+nx+'」' : ''}テキスト or アウトロ`, audio: 'BGMフェードアウト', memo: 'CTAをはっきり見せる' },
+  ],
+  'ルーティン・早回し': [
+    { screen: (t,ev) => `「${t}」テキスト or ルーティン開始のカット`, audio: 'テンポの速いBGM', memo: '速い展開で引き込む' },
+    { screen: (t,ev) => '全体の流れを俯瞰できるカット', audio: 'BGM継続（速め）', memo: '早回し or タイムラプス' },
+    { screen: (t,ev) => '手元・細部の動きをクローズアップ', audio: 'BGM継続', memo: 'スピード感を出しながら質感を伝える' },
+    { screen: (t,ev) => '途中経過・変化が見えるカット', audio: 'BGM継続', memo: 'ビフォーアフターや過程を見せる' },
+    { screen: (t,ev) => '完成・クライマックスのカット', audio: 'BGMが少し落ち着く', memo: 'ゆっくりカットを挟んで対比を作る' },
+    { screen: (t,ev,nx,cta) => `完成品 or まとめテキスト${nx ? '「次回 '+nx+'」' : ''}`, audio: 'BGMフェードアウト', memo: '保存・フォローCTAをテキストで' },
+  ],
+  '解説型（テキスト中心）': [
+    { screen: (t,ev,nx,cta,msg) => `問いかけテキスト「${msg ? msg.slice(0,20)+'…' : t+'って知ってる？'}」`, audio: 'シンプルなBGM（または無音）', memo: 'テキストが主役。シンプルな背景' },
+    { screen: (t,ev) => 'ポイント①のテキストスライド or 説明カット', audio: 'BGM継続', memo: '文字は大きく・読みやすい色で' },
+    { screen: (t,ev) => 'ポイント②の説明テキスト or ビジュアル補足', audio: 'BGM継続', memo: 'アニメーションで動きをつける' },
+    { screen: (t,ev) => 'ポイント③ or 実例・具体的なシーン', audio: 'BGM継続', memo: 'テキストと映像を交互に' },
+    { screen: (t,ev) => 'まとめテキスト or 一番伝えたい一言', audio: 'BGMが少し盛り上がる', memo: 'ここが最も大事なスライド' },
+    { screen: (t,ev,nx,cta) => `保存・フォロー促しテキスト${nx ? '「次回 '+nx+'」' : ''}`, audio: 'BGMフェードアウト', memo: 'CTAは明確に。アカウント名も' },
+  ],
+};
+
+const SUBTITLES_BY_PILLAR = {
+  '整い':  [
+    t => t || '整える、という選択。',
+    () => '整いが、日常になるとき。',
+    () => 'ひとつひとつが、整いをつくる。',
+    () => 'ととのう時間を、大切に。',
+    (t,m) => m ? m.slice(0,25) : '整えることが、続く力になる。',
+    (t,m,nx) => nx ? `次回は${nx}` : 'フォローして、整いのヒントを。',
+  ],
+  '学び': [
+    t => t || '知ることが、動く力になる。',
+    () => '学びの場が、ここにある。',
+    () => '細部に、学びが宿る。',
+    () => '人の言葉が、気づきをくれる。',
+    (t,m) => m ? m.slice(0,25) : '学んで、動いて、また学ぶ。',
+    (t,m,nx) => nx ? `次回は${nx}` : 'フォローして、学びのヒントを。',
+  ],
+  '広がり': [
+    t => t || 'つながりが、可能性を広げる。',
+    () => '出会いの場が、ここにある。',
+    () => '小さな交流が、大きな変化になる。',
+    () => '人と交わることで、自分が変わる。',
+    (t,m) => m ? m.slice(0,25) : 'ひとりでは見えなかった景色がある。',
+    (t,m,nx) => nx ? `次回は${nx}` : 'フォローして、広がりを一緒に。',
+  ],
+  '中の人': [
+    t => t || '裏側を、正直に。',
+    () => '準備の時間も、全部含めて。',
+    () => 'ここにこだわっています。',
+    () => 'リアルな瞬間が、いちばん好き。',
+    (t,m) => m ? m.slice(0,25) : 'うまくいかなくても、続けていく。',
+    (t,m,nx) => nx ? `次回は${nx}` : 'フォローして、日々を一緒に。',
+  ],
+};
+
+const SHOOTING_TIPS_BY_STYLE = {
+  'ドキュメンタリー風': ['自然光を活かしたカットを優先する','人の表情は望遠気味で狙うと自然に撮れる','BGMは会話と被らない音量に調整する'],
+  'イベントダイジェスト': ['ハンディで動きながら撮ると臨場感が出る','乾杯・集合など「瞬間」を逃さず撮る','最初と最後に会場全景を必ず押さえる'],
+  'ルーティン・早回し': ['固定アングルで撮ってから編集で速度変更する','BGMのテンポに合わせてカット割りを設計する','同じアングルで複数カット撮ると繋げやすい'],
+  '解説型（テキスト中心）': ['白・グレー・木目など背景はシンプルに統一する','テキストサイズはスマホで読める大きさに','無音 or 落ち着いたBGMでテキストに集中させる'],
+};
+
+function buildScript(title, pillar, message, dur, style, event_, next, material, cta) {
+  const styleKey = STYLE_SCENES[style] ? style : 'ドキュメンタリー風';
+  const baseSix  = STYLE_SCENES[styleKey];
+  const subs     = SUBTITLES_BY_PILLAR[pillar] || SUBTITLES_BY_PILLAR['整い'];
+  const names    = ['フック','全体感','ディテール','人・表情','メイン見せ場','エンディング'];
+  const times    = ['0〜2秒','2〜5秒','5〜8秒','8〜12秒','12〜18秒','18〜25秒'];
+
+  return {
+    title: title || 'リール台本',
+    scenes: baseSix.map((s, i) => ({
+      num:      i + 1,
+      name:     names[i],
+      time:     times[i],
+      screen:   s.screen(title, event_, next, cta, message),
+      audio:    s.audio,
+      subtitle: subs[i](title, message, next),
+      memo:     s.memo,
+    })),
+    shooting_tips: SHOOTING_TIPS_BY_STYLE[styleKey] || [],
+  };
+}
+
 // ══════════════ SCRIPT GENERATION ══════════════
-async function generateScript() {
-  const title = document.getElementById('reelTitle').value.trim() || 'Reelコンテンツ';
+function generateScript() {
+  const title   = document.getElementById('reelTitle').value.trim() || 'Reelコンテンツ';
   const message = document.getElementById('reelMessage').value.trim();
-  const dur = document.getElementById('reelDuration').value;
-  const style = document.getElementById('reelStyle').value;
-  const event_ = document.getElementById('detailEvent').value.trim();
-  const next = document.getElementById('detailNext').value.trim();
-  const material = document.getElementById('detailMaterial').value.trim();
-  const cta = document.getElementById('detailCTA').value;
-  const pillar = S.pillar || '整い';
+  const dur     = document.getElementById('reelDuration').value;
+  const style   = document.getElementById('reelStyle').value;
+  const event_  = document.getElementById('detailEvent').value.trim();
+  const next    = document.getElementById('detailNext').value.trim();
+  const material= document.getElementById('detailMaterial').value.trim();
+  const cta     = document.getElementById('detailCTA').value;
+  const pillar  = S.pillar || '整い';
 
   document.getElementById('scriptLoading').classList.add('show');
   document.getElementById('scriptPlaceholder').style.display = 'none';
@@ -739,95 +839,19 @@ async function generateScript() {
   document.getElementById('scriptBtnRow0').style.display = 'flex';
   document.getElementById('genScriptBtn').disabled = true;
 
-  const prompt = `あなたは@fu_communityのInstagramリール制作担当です。
-以下の情報をもとに、撮影台本を作成してください。
+  setTimeout(() => {
+    const parsed = buildScript(title, pillar, message, dur, style, event_, next, material, cta);
+    S.scriptScenes = parsed.scenes;
+    S.script = JSON.stringify(parsed);
+    S.scenes = SCENE_DEFAULTS.map((d, i) => ({...d, clipIdx: null, scriptScene: S.scriptScenes[i] || null}));
 
-【アカウント情報】
-- ターゲット：30代以上の健康職（ヨガ・ピラティス・トレーナー・セラピスト等）
-- ブランドメッセージ：「整いと、学びと、広がりと。」
-- BtoB要素は一切含めない
-- トーン：温かみ・自然体・売り込まない
+    renderScript(parsed);
 
-【リール情報】
-- タイトル：${title}
-- 柱：${pillar}系
-- 伝えたいこと：${message || 'アカウントの世界観を伝える'}
-- 目標尺：${dur}
-- スタイル：${style}
-- イベント・場所：${event_ || '未定'}
-- 次回日程：${next || 'なし'}
-- 撮影素材：${material || '一般的なシーン'}
-- CTA：${cta}
-
-【台本フォーマット】
-以下のJSON形式で6シーン分出力してください。他のテキストは不要。
-
-{
-  "title": "台本タイトル",
-  "scenes": [
-    {
-      "num": 1,
-      "name": "シーン名",
-      "time": "0-3秒",
-      "screen": "何を映すか（被写体・アングル）",
-      "audio": "BGM・音・ナレーション",
-      "subtitle": "字幕テキスト",
-      "memo": "撮影・編集メモ"
-    }
-  ],
-  "caption": "Instagramキャプション全文",
-  "hashtags": ["#タグ1","#タグ2"],
-  "shooting_tips": ["撮影ポイント1","撮影ポイント2","撮影ポイント3"]
-}`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:2000,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    const data = await res.json();
-    const raw = data.content?.[0]?.text || '';
-
-    // JSONパース
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      try {
-        const parsed = JSON.parse(jsonMatch[0]);
-        S.scriptScenes = parsed.scenes || [];
-        S.script = raw;
-        if (parsed.caption) S.caption = parsed.caption;
-        if (parsed.hashtags) {
-          S.hashtags = parsed.hashtags.map(t => ({tag:t,on:true}));
-          // BtoC専用ハッシュタグを追加
-          HASHTAGS_BTOC.forEach(h => {
-            if (!S.hashtags.find(x=>x.tag===h)) S.hashtags.push({tag:h,on:true});
-          });
-        }
-        renderScript(parsed);
-      } catch(e) {
-        renderScriptRaw(raw);
-      }
-    } else {
-      renderScriptRaw(raw);
-    }
-
-    // シーンスロット初期化
-    S.scenes = SCENE_DEFAULTS.map((d,i) => ({...d, clipIdx: null, scriptScene: S.scriptScenes[i] || null}));
-
-  } catch(e) {
-    document.getElementById('scriptPlaceholder').style.display = 'block';
-    document.getElementById('scriptPlaceholder').innerHTML = '<div style="color:var(--red);font-size:13px;">エラーが発生しました。再試行してください。</div>';
-  }
-
-  document.getElementById('scriptLoading').classList.remove('show');
-  document.getElementById('genScriptBtn').disabled = false;
-  document.getElementById('scriptBtnRow0').style.display = 'none';
-  document.getElementById('scriptBtnRow').style.display = 'flex';
+    document.getElementById('scriptLoading').classList.remove('show');
+    document.getElementById('genScriptBtn').disabled = false;
+    document.getElementById('scriptBtnRow0').style.display = 'none';
+    document.getElementById('scriptBtnRow').style.display = 'flex';
+  }, 400);
 }
 
 function renderScript(parsed) {
@@ -945,86 +969,126 @@ function renderSceneSlots() {
   document.getElementById('sceneAssignCard').style.display = 'block';
 }
 
+// ══════════════ CAPTION TEMPLATES ══════════════
+const CAP_T = {
+  '整い': {
+    opens: [
+      '整えることが、続く力になる。',
+      '自分を整える時間を、大切にしていますか。',
+      '整いは、毎日の選択から始まる。',
+      'ととのう時間が、明日をつくる。',
+      '体と心が整うと、動き方が変わる。',
+      '整えることが、いちばんの準備になる。',
+    ],
+    bodies: [
+      '忙しい日々の中でも、「整える時間」を少しだけとること。\nそれだけで、翌日の体の動きがちがってきます。',
+      '知識や技術を磨く前に、まず自分自身の状態を整えること。\nそれが、長く続けるための土台になると思っています。',
+      'イベントの中で、「整えること」を一緒に考えました。\n参加してくれた方の変化が、静かに嬉しかったです。',
+    ],
+  },
+  '学び': {
+    opens: [
+      '知ることで、動きやすくなる。',
+      '学びは、現場で使ってこそ力になる。',
+      '知識が増えると、選択肢が広がる。',
+      '学んだことを、今日から一つ試してみて。',
+      '「知る」が「できる」に変わる瞬間がある。',
+      '正しく知ることが、最初の一歩になる。',
+    ],
+    bodies: [
+      '今日のリールでお伝えしたこと、どれか一つでも日常に取り入れてみてください。\n小さな変化が、大きな違いをつくります。',
+      '学びの場をつくるとき、いつも「明日から使える」を意識しています。\n知識は、使われてはじめて意味を持つから。',
+      '専門的な内容も、わかりやすく届けることが私たちの役割だと思っています。\n一緒に学んでいきましょう。',
+    ],
+  },
+  '広がり': {
+    opens: [
+      'つながりが、可能性を広げてくれる。',
+      'ひとりでは見えなかった景色がある。',
+      '出会いが、次の一歩を連れてくる。',
+      '人と交わることで、自分が変わる。',
+      '同じ熱量の人と出会うと、動ける気がしてくる。',
+      '広がりは、小さな一歩から始まる。',
+    ],
+    bodies: [
+      '「こんな人たちがいたのか」という出会いが、次へ進む勇気になることがある。\nそんな場をつくり続けたいと思っています。',
+      '参加した人たちの間に生まれた会話が、いちばん嬉しい瞬間です。\n知識よりも、つながりが力になることを知っているから。',
+      '同じ方向を見ている人たちが集まると、不思議とみんなが前を向いていける。\nそういう場が、もっと増えてほしい。',
+    ],
+  },
+  '中の人': {
+    opens: [
+      '日々のことを、正直に書いています。',
+      'うまくいかないことも、ここに残しています。',
+      '裏側を見せることで、伝わることがある。',
+      '完璧じゃないからこそ、届く言葉がある。',
+      'リアルな日常が、誰かの背中を押せたら。',
+      'やってみてわかったことを、そのまま伝えます。',
+    ],
+    bodies: [
+      '準備中のこと、うまくいったこと、反省したこと。\n全部含めて、ここに記録しています。同じように動いている人に、少しでも届いたら嬉しいです。',
+      '「どうやってるんですか？」と聞かれることを、\nもう少し丁寧に伝えようと思ってリールにしました。参考になれば。',
+      'うまくやろうとしすぎないこと。\nそれが今の自分の課題です。一緒に試行錯誤しましょう。',
+    ],
+  },
+};
+
+const CTA_LINES = {
+  '次回イベントへの参加': (next, ev) =>
+    next ? `次回は${next}。${ev ? '「' + ev + '」' : 'イベント'}の詳細はプロフィールのリンクからどうぞ。`
+         : 'イベントの詳細はプロフィールのリンクから。お待ちしています。',
+  'フォロー': () => 'フォローして、日々のヒントを受け取ってください。',
+  '保存（学び・整い系）': () => 'あとで読み返したいときのために、保存しておいてください。',
+  'プロフィールリンクから予約': () => 'ご予約はプロフィールのリンクから。お気軽にどうぞ。',
+};
+
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
 // ══════════════ CAPTION GENERATION ══════════════
-async function generateCaption() {
-  const title = document.getElementById('reelTitle').value.trim() || 'リール';
+function generateCaption() {
   const pillar = S.pillar || '整い';
   const event_ = document.getElementById('detailEvent').value.trim();
-  const next = document.getElementById('detailNext').value.trim();
-  const cta = document.getElementById('detailCTA').value;
-  const message = document.getElementById('reelMessage').value.trim();
-
-  // 台本の字幕テキストを抽出
-  const subtitles = S.scriptScenes.map(s=>s.subtitle).filter(Boolean).join(' / ');
+  const next    = document.getElementById('detailNext').value.trim();
+  const cta     = document.getElementById('detailCTA').value;
 
   document.getElementById('capLoading').classList.add('show');
   document.getElementById('genCapBtn').disabled = true;
   document.getElementById('captionBox').textContent = '';
 
-  const prompt = `あなたは@fu_communityのInstagramキャプション担当です。
+  const tmpl = CAP_T[pillar] || CAP_T['整い'];
 
-【条件】
-- ターゲット：30代以上の健康職（ヨガ・ピラティス・トレーナー・セラピスト等）
-- ブランドメッセージ：「整いと、学びと、広がりと。」
-- BtoB要素は一切含めない
-- 売り込まない・自然体・温かいトーン
+  // 開始行をランダム選択、残りを別案候補に
+  const openIdx = Math.floor(Math.random() * tmpl.opens.length);
+  const opening = tmpl.opens[openIdx];
+  const variants = tmpl.opens.filter((_, i) => i !== openIdx).slice(0, 3);
 
-【リール情報】
-- タイトル：${title}
-- 柱：${pillar}系
-- メッセージ：${message || ''}
-- 台本の字幕：${subtitles || ''}
-- イベント：${event_ || ''}
-- 次回日程：${next || ''}
-- CTA：${cta}
+  const body = pick(tmpl.bodies);
+  const ctaFn = CTA_LINES[cta] || CTA_LINES['フォロー'];
+  const ctaLine = ctaFn(next, event_);
 
-【出力ルール】
-- 1行目：健康職の人が「自分のことだ」と感じる一文（20字以内、絵文字なし）
-- 本文：2〜3文で雰囲気を伝える。改行あり。
-- 最後：CTAの一文
-- 記号「ーーーーーーーー」で区切り、@fu_community のプロフ誘導を1行
-- 絵文字は控えめに（1〜2個まで）
+  S.caption = `${opening}\n\n${body}\n\n${ctaLine}\nーーーーーーーー\n@fu_community のプロフィールへ`;
+  S.variants = variants;
 
-区切り「===」の後に1行目の別案を3つ出力（形式：1. テキスト）`;
+  // タイプライター
+  const box = document.getElementById('captionBox');
+  box.textContent = '';
+  let i = 0;
+  const t = setInterval(() => {
+    box.textContent = S.caption.slice(0, i);
+    i++;
+    if (i > S.caption.length) clearInterval(t);
+  }, 10);
 
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1000,
-        messages:[{role:'user',content:prompt}]
-      })
-    });
-    const data = await res.json();
-    const full = data.content?.[0]?.text || '';
-    const [mainPart, varPart] = full.split('===');
-    S.caption = mainPart.trim();
+  renderVariants();
 
-    // タイプライター
-    const box = document.getElementById('captionBox');
-    box.textContent = '';
-    let i = 0;
-    const t = setInterval(()=>{ box.textContent = S.caption.slice(0,i); i++; if(i>S.caption.length) clearInterval(t); },10);
-
-    // 別案
-    S.variants = (varPart||'').trim().split('\n').filter(l=>/^\d\./.test(l.trim())).map(l=>l.replace(/^\d\.\s*/,'').trim());
-    renderVariants();
-
-    // ハッシュタグ（未初期化なら）
-    if (S.hashtags.length === 0) {
-      S.hashtags = HASHTAGS_BTOC.map(t=>({tag:t,on:true}));
-    }
-    renderHashtags();
-
-    document.getElementById('variantsCard').style.display = 'block';
-    document.getElementById('hashtagsCard').style.display = 'block';
-    document.getElementById('regenCapBtn').style.display = 'inline-flex';
-
-  } catch(e) {
-    document.getElementById('captionBox').textContent = 'エラーが発生しました。再試行してください。';
+  if (S.hashtags.length === 0) {
+    S.hashtags = HASHTAGS_BTOC.map(t => ({tag: t, on: true}));
   }
+  renderHashtags();
+
+  document.getElementById('variantsCard').style.display = 'block';
+  document.getElementById('hashtagsCard').style.display = 'block';
+  document.getElementById('regenCapBtn').style.display = 'inline-flex';
 
   document.getElementById('capLoading').classList.remove('show');
   document.getElementById('genCapBtn').disabled = false;
