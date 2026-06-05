@@ -1,0 +1,937 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FU 営業資料作成ガイド</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f5f3ef;--surface:#faf9f6;--white:#ffffff;
+  --blue:#1B6CB5;--blue-dk:#0f3160;--blue-lt:#e8f1fb;
+  --border:#ddd9d0;--text:#1a1a1a;--muted:#6b6860;
+  --step1:#1B6CB5;--step2:#2580cc;--step3:#2a5298;--step4:#1a4a7a;
+  --green:#2d8a4e;--green-lt:#e6f5ec;
+  --amber:#b45309;--amber-lt:#fef3e2;
+  --r:12px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);line-height:1.7}
+
+/* HERO */
+.hero{background:var(--blue-dk);color:white;padding:56px 40px 48px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 80% at 90% 50%,rgba(27,108,181,.35) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 10% 80%,rgba(27,108,181,.2) 0%,transparent 50%);pointer-events:none}
+.hero-inner{max-width:860px;margin:0 auto;position:relative}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:999px;padding:5px 16px;font-size:11px;font-weight:700;letter-spacing:.12em;color:rgba(255,255,255,.85);margin-bottom:20px;text-transform:uppercase}
+.hero h1{font-size:clamp(22px,4vw,32px);font-weight:900;line-height:1.3;margin-bottom:12px}
+.hero-sub{font-size:13px;color:rgba(255,255,255,.6);max-width:520px}
+.flow-overview{display:flex;align-items:center;margin-top:32px;flex-wrap:wrap;gap:4px}
+.flow-chip{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.15);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:700;color:white;white-space:nowrap}
+.flow-chip .num{width:20px;height:20px;background:rgba(255,255,255,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900}
+.flow-arrow{color:rgba(255,255,255,.35);font-size:18px;padding:0 2px}
+
+/* LAYOUT */
+.container{max-width:860px;margin:0 auto;padding:0 24px}
+
+/* STEP SECTION */
+.step-section{padding:40px 0 8px}
+.step-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:24px}
+.step-badge{flex-shrink:0;width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:white;letter-spacing:.04em;text-align:center;line-height:1.3}
+.s1 .step-badge{background:var(--step1)}.s2 .step-badge{background:var(--step2)}.s3 .step-badge{background:var(--step3)}.s4 .step-badge{background:var(--step4)}
+.step-title-block h2{font-size:18px;font-weight:900;color:var(--text);line-height:1.3;margin-bottom:4px}
+.tool-tag{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:700;letter-spacing:.06em;padding:3px 10px;border-radius:6px;text-transform:uppercase}
+.tag-chatgpt{background:#e8f5e9;color:#1b5e20}.tag-claude{background:#e8f0fb;color:#0d3a7a}.tag-google{background:#fff3e0;color:#7c3500}
+
+/* TASK CARD */
+.task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px}
+.task-card-header{display:flex;align-items:center;gap:12px;padding:14px 18px;border-bottom:1px solid var(--border);cursor:pointer;user-select:none}
+.task-card-header:hover{background:#f8f6f2}
+.task-num{width:26px;height:26px;background:var(--blue);color:white;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;flex-shrink:0}
+.task-card-header h3{font-size:14px;font-weight:700;flex:1}
+.task-card-header .chevron{color:var(--muted);font-size:12px;transition:transform .2s}
+.task-card.open .chevron{transform:rotate(180deg)}
+.task-body{display:none;padding:18px 18px 20px}
+.task-card.open .task-body{display:block}
+
+/* SUBSTEP */
+.substep{display:flex;gap:12px;margin-bottom:16px}
+.substep-icon{flex-shrink:0;width:28px;height:28px;background:var(--blue-lt);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;margin-top:1px}
+.substep-content p{font-size:13px;color:var(--text);margin-bottom:6px}
+.substep-content p strong{font-weight:700}
+
+/* HINT */
+.hint{display:flex;gap:10px;border-radius:8px;padding:12px 14px;font-size:12px;margin-top:10px;line-height:1.6}
+.hint-tip{background:var(--blue-lt);border-left:3px solid var(--blue)}
+.hint-warn{background:var(--amber-lt);border-left:3px solid #d97706;color:#78350f}
+.hint-ok{background:var(--green-lt);border-left:3px solid var(--green);color:#14532d}
+.hint-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+
+/* PROMPT BLOCK */
+.prompt-block{
+  background:#1e2433;
+  border-radius:10px;
+  margin:10px 0;
+  overflow:hidden;
+}
+.prompt-block-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:10px 16px;
+  background:#161c2d;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.prompt-label{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:rgba(255,255,255,.5);
+  letter-spacing:.06em;
+}
+.copy-btn{
+  background:rgba(255,255,255,.1);
+  border:1px solid rgba(255,255,255,.15);
+  color:rgba(255,255,255,.7);
+  border-radius:6px;
+  padding:4px 12px;
+  font-size:11px;
+  font-family:'Noto Sans JP',sans-serif;
+  cursor:pointer;
+  transition:background .15s;
+  flex-shrink:0;
+}
+.copy-btn:hover{background:rgba(255,255,255,.18)}
+.copy-btn.copied{color:#7ee8a2;border-color:#7ee8a24d}
+.prompt-text{
+  font-family:'DM Mono',monospace;
+  font-size:11.5px;
+  color:#c9d7f0;
+  line-height:1.7;
+  padding:14px 16px;
+  white-space:pre-wrap;
+  word-break:break-all;
+  max-height:260px;
+  overflow-y:auto;
+}
+.prompt-text.expanded{max-height:none}
+.prompt-expand-btn{
+  display:block;
+  text-align:center;
+  padding:8px;
+  background:#161c2d;
+  border:none;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:rgba(255,255,255,.5);
+  font-size:11px;
+  cursor:pointer;
+  width:100%;
+  transition:color .15s;
+}
+.prompt-expand-btn:hover{color:rgba(255,255,255,.8)}
+
+/* BIG PROMPT CARD */
+.big-prompt-card{
+  border:2px solid var(--blue);
+  border-radius:var(--r);
+  overflow:hidden;
+  margin:16px 0;
+}
+.big-prompt-header{
+  background:var(--blue);
+  padding:12px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.big-prompt-header-text{
+  font-size:13px;
+  font-weight:700;
+  color:white;
+}
+.big-prompt-header-sub{
+  font-size:11px;
+  color:rgba(255,255,255,.7);
+  margin-top:2px;
+}
+.big-copy-btn{
+  background:rgba(255,255,255,.2);
+  border:1px solid rgba(255,255,255,.3);
+  color:white;
+  border-radius:8px;
+  padding:6px 16px;
+  font-size:12px;
+  font-weight:700;
+  font-family:'Noto Sans JP',sans-serif;
+  cursor:pointer;
+  flex-shrink:0;
+  transition:background .15s;
+}
+.big-copy-btn:hover{background:rgba(255,255,255,.3)}
+.big-copy-btn.copied{background:rgba(126,232,162,.3);color:#7ee8a2}
+.big-prompt-body{
+  background:#1e2433;
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  color:#c9d7f0;
+  line-height:1.7;
+  padding:16px;
+  max-height:220px;
+  overflow-y:auto;
+  white-space:pre-wrap;
+  word-break:break-all;
+}
+.big-prompt-body.expanded{max-height:none}
+.big-expand-btn{
+  display:block;
+  text-align:center;
+  padding:10px;
+  background:#161c2d;
+  border:none;
+  border-top:1px solid rgba(255,255,255,.08);
+  color:rgba(255,255,255,.5);
+  font-size:11px;
+  cursor:pointer;
+  width:100%;
+}
+.big-expand-btn:hover{color:white}
+
+/* CHECKLIST */
+.checklist{list-style:none}
+.checklist li{display:flex;gap:10px;align-items:flex-start;font-size:13px;padding:7px 0;border-bottom:1px solid #ede9e2;cursor:pointer}
+.checklist li:last-child{border:none}
+.check-box{width:18px;height:18px;border:2px solid var(--border);border-radius:4px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:10px;color:white}
+.checklist li.checked .check-box{background:var(--green);border-color:var(--green)}
+.checklist li.checked .check-label{text-decoration:line-through;color:var(--muted)}
+
+/* PROGRESS BAR */
+.progress-bar-wrap{position:sticky;top:0;z-index:100;background:var(--blue-dk);padding:10px 24px}
+.progress-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:14px}
+.progress-steps{display:flex;gap:6px;flex:1}
+.p-step{flex:1;height:4px;background:rgba(255,255,255,.2);border-radius:99px;transition:background .3s}
+.p-step.done{background:#4fc3f7}.p-step.active{background:white}
+.progress-label{font-size:11px;color:rgba(255,255,255,.6);white-space:nowrap;font-family:'DM Mono',monospace}
+
+/* FINAL */
+.final-card{background:var(--blue-dk);border-radius:var(--r);padding:28px;margin:32px 0 48px;color:white}
+.final-card h3{font-size:16px;font-weight:900;margin-bottom:16px}
+.final-list{list-style:none}
+.final-list li{display:flex;gap:10px;font-size:13px;color:rgba(255,255,255,.8);padding:6px 0;border-bottom:1px solid rgba(255,255,255,.1)}
+.final-list li:last-child{border:none}
+.section-divider{border:none;border-top:1px solid var(--border);margin:8px 0 32px}
+
+@media(max-width:600px){
+  .hero{padding:36px 20px 32px}
+  .container{padding:0 16px}
+  .big-prompt-header{flex-direction:column;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">📋 FiTNESS UNIVERSITY</div>
+    <h1>営業資料作成ガイド<br>PDF → Googleスライド 完全手順</h1>
+    <p class="hero-sub">このガイドを上から順に進めるだけで、完成した営業資料がGoogleスライドに入ります。</p>
+    <div class="flow-overview">
+      <div class="flow-chip"><span class="num">1</span> PDF → テキスト化</div>
+      <span class="flow-arrow">›</span>
+      <div class="flow-chip"><span class="num">2</span> FUデザインで画像化</div>
+      <span class="flow-arrow">›</span>
+      <div class="flow-chip"><span class="num">3</span> 編集可能PPTXに変換</div>
+      <span class="flow-arrow">›</span>
+      <div class="flow-chip"><span class="num">4</span> Googleスライドで調整</div>
+    </div>
+  </div>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-inner">
+    <div class="progress-steps">
+      <div class="p-step active" id="ps1"></div>
+      <div class="p-step" id="ps2"></div>
+      <div class="p-step" id="ps3"></div>
+      <div class="p-step" id="ps4"></div>
+    </div>
+    <span class="progress-label" id="progressLabel">STEP 1 / 4</span>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ════════════════════════════════
+     STEP 1
+════════════════════════════════ -->
+<div class="step-section s1" id="step1">
+  <div class="step-header">
+    <div class="step-badge">STEP 01</div>
+    <div class="step-title-block">
+      <h2>PDF資料をテキストに変換する</h2>
+      <span class="tool-tag tag-chatgpt">🤖 ChatGPT</span>
+    </div>
+  </div>
+
+  <div class="task-card" onclick="toggleCard(this)">
+    <div class="task-card-header">
+      <div class="task-num">1</div>
+      <h3>ChatGPTにPDFを添付する</h3>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="task-body">
+      <div class="substep">
+        <div class="substep-icon">🌐</div>
+        <div class="substep-content">
+          <p><a href="https://chat.openai.com" target="_blank" style="color:var(--blue);font-weight:700;">chat.openai.com</a> を開いてログインします。</p>
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-icon">📎</div>
+        <div class="substep-content">
+          <p>入力欄のクリップアイコン（📎）→ <strong>「コンピュータからアップロード」</strong> → PDFを選択して添付します。</p>
+        </div>
+      </div>
+      <div class="hint hint-tip">
+        <span class="hint-icon">💡</span>
+        <span>PDFが10MB以上の場合は必要なページだけを別PDFに分けてから添付すると確実です。</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="task-card" onclick="toggleCard(this)">
+    <div class="task-card-header">
+      <div class="task-num">2</div>
+      <h3>下記プロンプトをコピーして送信する</h3>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="task-body">
+      <p style="font-size:13px;margin-bottom:10px;">PDFを添付した状態で、下のプロンプトをコピーして貼り付けてから送信してください。</p>
+
+      <div class="big-prompt-card">
+        <div class="big-prompt-header">
+          <div>
+            <div class="big-prompt-header-text">📄 STEP1 プロンプト — PDF テキスト化</div>
+            <div class="big-prompt-header-sub">ChatGPTの入力欄にそのまま貼り付けてください</div>
+          </div>
+          <button class="big-copy-btn" onclick="bigCopy('p_step1',this)">📋 コピー</button>
+        </div>
+        <div class="big-prompt-body" id="p_step1">このPDFの内容を、スライド資料を作成するためにテキスト化してください。
+
+以下の形式で出力してください：
+- 章・セクションごとに見出しを付ける
+- 箇条書きは「・」で統一する
+- 図表の内容も文字で説明する
+- ページ番号や装飾文字は不要
+- 読み手が内容を把握できる程度に忠実に書き出す</div>
+        <button class="big-expand-btn" onclick="toggleExpand('p_step1',this)">▼ 全文を表示</button>
+      </div>
+
+      <div class="hint hint-ok">
+        <span class="hint-icon">✅</span>
+        <span>出力されたテキストを全選択（Ctrl+A / Cmd+A）してコピーしておきます。次のSTEPで使います。</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+</div>
+
+
+<!-- ════════════════════════════════
+     STEP 2
+════════════════════════════════ -->
+<div class="step-section s2" id="step2">
+  <div class="step-header">
+    <div class="step-badge">STEP 02</div>
+    <div class="step-title-block">
+      <h2>FUデザインでスライド画像を作成する</h2>
+      <span class="tool-tag tag-chatgpt">🤖 ChatGPT</span>
+    </div>
+  </div>
+
+  <div class="task-card" onclick="toggleCard(this)">
+    <div class="task-card-header">
+      <div class="task-num">1</div>
+      <h3>新しいチャットを開き、FUデザインプロンプトを貼る</h3>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="task-body">
+      <div class="substep">
+        <div class="substep-icon">🆕</div>
+        <div class="substep-content">
+          <p>ChatGPTで<strong>新しいチャット</strong>を開きます（左上「New chat」）。</p>
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-icon">📋</div>
+        <div class="substep-content">
+          <p>下の「FUデザインプロンプト」を<strong>コピー</strong>して入力欄に貼り付けます。</p>
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-icon">✏️</div>
+        <div class="substep-content">
+          <p>プロンプト末尾の <strong>「# 入力するテキスト資料」</strong> の直下に、STEP1でコピーしたテキストを貼り付けます。</p>
+        </div>
+      </div>
+
+      <div class="big-prompt-card">
+        <div class="big-prompt-header">
+          <div>
+            <div class="big-prompt-header-text">🎨 STEP2 プロンプト — FUデザイン指示書</div>
+            <div class="big-prompt-header-sub">末尾の「# 入力するテキスト資料」の下にSTEP1のテキストを追加してから送信</div>
+          </div>
+          <button class="big-copy-btn" onclick="bigCopy('p_step2',this)">📋 コピー</button>
+        </div>
+        <div class="big-prompt-body" id="p_step2">あなたは、法人向け営業資料・提案資料に強いプロのスライドデザイナーです。
+
+これから渡す「テキスト資料の内容」をもとに、添付参考スライドと全く同じデザイン様式で、16:9横長のスライド資料を作成してください。
+
+重要：
+デザインの雰囲気・余白・配色・フォントサイズ・情報整理の型は、添付参考スライドを厳密に踏襲してください。
+ただし、スライド内で使用する写真・イラスト・アイコンは、今回渡すテキスト資料の内容に合わせて適切なものへ変更してください。
+
+---
+
+# 参考スライドのデザインルール
+
+## 全体デザイン
+
+・16:9横長スライド
+・白背景をベースにする
+・メインカラーは濃紺
+・アクセントカラーは鮮やかすぎないブルー
+・補助色はライトグレー、淡いブルーグレー
+・法人向け、清潔感、信頼感、実装力が伝わるデザイン
+・余白を広く取り、情報を詰め込みすぎない
+・高級感よりも、読みやすさ・整理感・信頼感を優先する
+・全ページでデザインのルールを統一する
+・日本語ゴシック体を使用する
+・見出しは大きく太字
+・本文は読みやすく、行間を広めに取る
+・小さすぎる注釈文字は使わない
+・7〜8m離れても主要メッセージが読めるサイズ感にする
+
+## フォントサイズ規定（厳守）
+
+全ページ共通：
+・最小フォントサイズは15px。これより小さい文字は一切使用しない
+・以下に指定のないテキストはすべて15px以上にすること
+
+【1枚目：表紙】
+・タイトル：30px
+・下部バナー内テキスト：30px
+・その他本文：15px以上
+
+【2枚目：目次】
+・「目次」の大見出し：50px
+・目次項目・その他テキスト：15px以上
+
+【3枚目以降：本文ページ】
+・左上ページ番号（例：01、02）：22px
+・ページ番号右の英字ラベル（例：MISSION / VISION）：11px ※このテキストのみ例外的に許容
+・ページタイトル（大見出し）：35px
+・タイトル直下の説明文：16px
+・下部バナー内テキスト：23px
+・カード見出し・カード本文・その他テキスト：15px以上（カード見出しは太字）
+
+---
+
+# 共通レイアウトルール
+
+## ヘッダー
+
+各スライド左上に、以下の形式で章番号と英字ラベルを配置する。
+
+例：
+01｜MISSION / VISION / VALUE
+02｜MARKET BACKGROUND
+
+・章番号はブルー
+・縦線または区切り線を入れる
+・英字ラベルは小さめ、字間を広めにする
+・全ページで位置を揃える
+
+## タイトル
+
+・左上寄りに大きく配置
+・濃紺または黒に近い濃紺
+・2行までを基本にする
+・一目でページの主旨が分かる表現にする
+
+## 本文
+
+・タイトル下に2〜3行程度の説明文を配置
+・長文にしすぎず、要点を簡潔にまとめる
+
+## カード
+
+・情報整理にはライトグレーの角丸カードを使用
+・カードには薄い枠線または淡い影を入れる
+・カード内にはブルーのアイコンを配置する
+・カードの見出しは太字
+・カード本文は2〜3行以内にする
+・カード数は基本3枚または4枚
+
+## 下部メッセージバー
+
+各スライド下部に、濃いブルーの横長バーを配置する。
+・左側に白いチェックアイコンを入れる
+・バー内に、そのページの結論メッセージを白文字で入れる
+・文章は短く、力強くする
+
+## フッター
+
+・右下に小さく「FiTNESS UNIVERSITY」と配置する
+
+---
+
+# スライド構成ルール
+
+## 1枚目：表紙
+・会社名または資料名、メインタイトル、サブコピー
+・右側に内容に合う写真、下部に濃いブルーの帯
+
+## 2枚目：目次
+・左側に「CONTENTS / 目次」を大きく配置
+・右側に章立てを01〜07程度で整理
+
+## 3枚目以降：本文ページ
+・左上：章番号＋英字ラベル
+・大見出し、説明文、カード/比較表/フロー/図解
+・下部ブルーバーに結論メッセージ
+
+---
+
+# 文体ルール
+
+・法人向けの落ち着いた表現にする
+・「制度で終わらせない」「仕組みとして実装する」「行動変容まで支援する」のような実装力が伝わる表現を使う
+・1スライド1メッセージを徹底する
+
+---
+
+# 入力するテキスト資料
+
+以下の内容をもとに、上記ルールでスライド資料を作成してください。
+
+（ここにSTEP1でコピーしたテキストを貼り付けてください）</div>
+        <button class="big-expand-btn" onclick="toggleExpand('p_step2',this)">▼ 全文を表示</button>
+      </div>
+
+      <div class="hint hint-warn">
+        <span class="hint-icon">⚠️</span>
+        <span>プロンプト末尾の「（ここにSTEP1でコピーしたテキストを貼り付けてください）」を削除し、テキストに置き換えてから送信してください。</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="task-card" onclick="toggleCard(this)">
+    <div class="task-card-header">
+      <div class="task-num">2</div>
+      <h3>「1枚目から画像生成」と追記して送信する</h3>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="task-body">
+      <p style="font-size:13px;margin-bottom:10px;">プロンプトの末尾にさらに以下を追記してから送信します。</p>
+
+      <div class="big-prompt-card">
+        <div class="big-prompt-header">
+          <div>
+            <div class="big-prompt-header-text">▶ 画像生成開始の指示</div>
+            <div class="big-prompt-header-sub">FUデザインプロンプトの末尾に追記して送信</div>
+          </div>
+          <button class="big-copy-btn" onclick="bigCopy('p_step2b',this)">📋 コピー</button>
+        </div>
+        <div class="big-prompt-body" id="p_step2b">1枚目から画像生成</div>
+      </div>
+
+      <div class="substep" style="margin-top:14px;">
+        <div class="substep-icon">⏳</div>
+        <div class="substep-content">
+          <p>1枚ずつ画像が生成されます。生成が止まったら「<strong>続けて</strong>」と送信すると次が出てきます。</p>
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-icon">💾</div>
+        <div class="substep-content">
+          <p>各画像を<strong>右クリック → 「名前を付けて保存」</strong>でPNGとして保存します。<br>
+          <span style="color:var(--muted);font-size:12px;">保存名の例：slide_01.png、slide_02.png …</span></p>
+        </div>
+      </div>
+      <div class="hint hint-tip">
+        <span class="hint-icon">💡</span>
+        <span>全画像を「FU_資料_〇月」のような1つのフォルダにまとめておくと次のSTEPがスムーズです。</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+</div>
+
+
+<!-- ════════════════════════════════
+     STEP 3
+════════════════════════════════ -->
+<div class="step-section s3" id="step3">
+  <div class="step-header">
+    <div class="step-badge">STEP 03</div>
+    <div class="step-title-block">
+      <h2>画像を編集できるPPTXに変換する</h2>
+      <span class="tool-tag tag-claude">⚡ Claude</span>
+    </div>
+  </div>
+
+  <div class="task-card" onclick="toggleCard(this)">
+    <div class="task-card-header">
+      <div class="task-num">1</div>
+      <h3>claude.ai を開いて画像をまとめて添付する</h3>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="task-body">
+      <div class="substep">
+        <div class="substep-icon">🌐</div>
+        <div class="substep-content">
+          <p><a href="https://claude.ai" target="_blank" style="color:var(--blue);font-weight:700;">claude.ai</a> でログインして新しいチャットを開始します。</p>
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-icon">📎</div>
+        <div class="substep-content">
+          <p>入力欄のクリップアイコンから<strong>全スライド画像（slide_01.png〜）をまとめて選択して添付</strong>します。</p>
+        </div>
+      </div>
+      <div class="hint hint-tip">
+        <span class="hint-icon">💡</span>
+        <span>Windowsは Ctrl+クリック、Macは Cmd+クリックで複数ファイルを一気に選択できます。</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="task-card" onclick="toggleCard(this)">
+    <div class="task-card-header">
+      <div class="task-num">2</div>
+      <h3>下記プロンプトをコピーして送信する</h3>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="task-body">
+      <div class="big-prompt-card">
+        <div class="big-prompt-header">
+          <div>
+            <div class="big-prompt-header-text">⚡ STEP3 プロンプト — PPTX変換指示</div>
+            <div class="big-prompt-header-sub">画像を添付した状態でこのプロンプトを送信してください</div>
+          </div>
+          <button class="big-copy-btn" onclick="bigCopy('p_step3',this)">📋 コピー</button>
+        </div>
+        <div class="big-prompt-body" id="p_step3">添付の画像を順番に、編集可能なPPTXに変換してください。
+
+【お願いしたいこと】
+・テキスト・図形・カードをすべてPowerPointのオブジェクトとして再現する
+・Googleスライドで直接テキストをクリックして編集できる状態にする
+・フォントはNoto Sans JP（日本語）/ Arial（英数字）を使用する
+・1枚ずつ確認のプレビュー画像を見せながら順番に進めてください
+・全枚数が完成したら、まとめて1つのPPTXファイルでダウンロードできるようにしてください</div>
+        <button class="big-expand-btn" onclick="toggleExpand('p_step3',this)">▼ 全文を表示</button>
+      </div>
+
+      <div class="hint hint-warn">
+        <span class="hint-icon">⚠️</span>
+        <span>一度に送れる画像は<strong>最大20枚程度</strong>が目安です。それ以上は数回に分けて送りましょう。</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="task-card" onclick="toggleCard(this)">
+    <div class="task-card-header">
+      <div class="task-num">3</div>
+      <h3>修正が必要なときの追加指示例</h3>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="task-body">
+      <p style="font-size:13px;margin-bottom:12px;">同じチャットで以下のような指示を送ると修正できます。</p>
+
+      <div class="big-prompt-card">
+        <div class="big-prompt-header">
+          <div>
+            <div class="big-prompt-header-text">🔧 修正指示の例（コピーして内容を変えてください）</div>
+          </div>
+          <button class="big-copy-btn" onclick="bigCopy('p_fix',this)">📋 コピー</button>
+        </div>
+        <div class="big-prompt-body" id="p_fix">（例1）〇枚目のタイトルを「〇〇〇〇」に変えてください。
+
+（例2）〇枚目の〇番目のカードの本文を以下に差し替えてください：
+「〇〇〇〇〇〇」
+
+（例3）〇枚目を単体でPPTXとしてダウンロードできるようにしてください。</div>
+        <button class="big-expand-btn" onclick="toggleExpand('p_fix',this)">▼ 全文を表示</button>
+      </div>
+
+      <div class="hint hint-ok">
+        <span class="hint-icon">✅</span>
+        <span>Claudeは前の会話を覚えているので、「〇枚目」のように指定するだけで修正してくれます。新しいチャットを開かずに続けてください。</span>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+</div>
+
+
+<!-- ════════════════════════════════
+     STEP 4
+════════════════════════════════ -->
+<div class="step-section s4" id="step4">
+  <div class="step-header">
+    <div class="step-badge">STEP 04</div>
+    <div class="step-title-block">
+      <h2>GoogleスライドにインポートしてAI整える</h2>
+      <span class="tool-tag tag-google">🎨 Googleスライド</span>
+    </div>
+  </div>
+
+  <div class="task-card" onclick="toggleCard(this)">
+    <div class="task-card-header">
+      <div class="task-num">1</div>
+      <h3>GoogleスライドにPPTXをインポートする</h3>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="task-body">
+      <div class="substep">
+        <div class="substep-icon">🌐</div>
+        <div class="substep-content">
+          <p><a href="https://slides.google.com" target="_blank" style="color:var(--blue);font-weight:700;">slides.google.com</a> で「空白」から新規プレゼンテーションを作成します。</p>
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-icon">📂</div>
+        <div class="substep-content">
+          <p>メニュー <strong>「ファイル」→「インポート」→「スライドのインポート」</strong> をクリックします。</p>
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-icon">📤</div>
+        <div class="substep-content">
+          <p>「アップロード」タブを選び、PPTXファイルをドラッグ＆ドロップします。</p>
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-icon">✅</div>
+        <div class="substep-content">
+          <p>「すべて選択」→ <strong>「スライドをインポート」</strong> を押して完了です。</p>
+        </div>
+      </div>
+      <div class="hint hint-tip">
+        <span class="hint-icon">💡</span>
+        <span>PPTXが複数に分かれている場合はこの操作を繰り返します。順番はサムネイルをドラッグして入れ替えられます。</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="task-card" onclick="toggleCard(this)">
+    <div class="task-card-header">
+      <div class="task-num">2</div>
+      <h3>テキストや内容を直接編集する</h3>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="task-body">
+      <div class="substep">
+        <div class="substep-icon">🖱️</div>
+        <div class="substep-content">
+          <p>テキストを<strong>ダブルクリック</strong>すると編集モードになります。会社名・日付・担当者名などを変更できます。</p>
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-icon">🎨</div>
+        <div class="substep-content">
+          <p>フォント変更が必要な場合は、テキストを選択してツールバーから <strong>「Noto Sans JP」</strong> を指定します。</p>
+        </div>
+      </div>
+      <div class="hint hint-warn">
+        <span class="hint-icon">⚠️</span>
+        <span>文字が崩れている場合：テキストを選択 → フォントを「<strong>Noto Sans JP</strong>」に変更してください。</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="task-card" onclick="toggleCard(this)">
+    <div class="task-card-header">
+      <div class="task-num">3</div>
+      <h3>資料を共有・ダウンロードする</h3>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="task-body">
+      <div class="substep">
+        <div class="substep-icon">🔗</div>
+        <div class="substep-content">
+          <p><strong>共有リンク：</strong>右上「共有」→ 「リンクを知っている全員が閲覧可」→ リンクをコピーして送付。</p>
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-icon">💾</div>
+        <div class="substep-content">
+          <p><strong>PPTXでDL：</strong>「ファイル」→「ダウンロード」→「Microsoft PowerPoint（.pptx）」</p>
+        </div>
+      </div>
+      <div class="substep">
+        <div class="substep-icon">📄</div>
+        <div class="substep-content">
+          <p><strong>PDFでDL：</strong>「ファイル」→「ダウンロード」→「PDF ドキュメント（.pdf）」</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="section-divider">
+</div>
+
+
+<!-- チェックリスト -->
+<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:24px;margin-bottom:32px;">
+  <h3 style="font-size:15px;font-weight:900;margin-bottom:16px;">📋 完了チェックリスト</h3>
+  <ul class="checklist">
+    <li onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">STEP1：PDFをChatGPTでテキスト化した</span></li>
+    <li onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">STEP2：FUデザインプロンプトにテキストを貼り付けて送信した</span></li>
+    <li onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">STEP2：全スライド画像を保存した（slide_01.png〜）</span></li>
+    <li onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">STEP3：ClaudeにPNG画像をまとめて添付してPPTX変換を依頼した</span></li>
+    <li onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">STEP3：PPTXファイルをダウンロードした</span></li>
+    <li onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">STEP4：GoogleスライドにPPTXをインポートした</span></li>
+    <li onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">STEP4：会社名・日付などを編集した</span></li>
+    <li onclick="toggleCheck(this)"><div class="check-box"></div><span class="check-label">STEP4：共有リンク or ダウンロードして完成</span></li>
+  </ul>
+</div>
+
+
+<!-- トラブルシューティング -->
+<div style="margin-bottom:48px;">
+  <h3 style="font-size:15px;font-weight:900;margin-bottom:16px;">🆘 困ったときは</h3>
+
+  <div class="task-card" onclick="toggleCard(this)">
+    <div class="task-card-header"><h3 style="font-size:13px;">ChatGPTがPDFを読み込めない</h3><span class="chevron">▼</span></div>
+    <div class="task-body">
+      <div class="hint hint-tip"><span class="hint-icon">💡</span><span>スキャンPDF（テキスト選択できないもの）は読めないことがあります。Adobe Acrobat や「PDF OCR」ツールでテキスト認識してから再試行してください。</span></div>
+    </div>
+  </div>
+
+  <div class="task-card" onclick="toggleCard(this)">
+    <div class="task-card-header"><h3 style="font-size:13px;">Claudeが途中で止まる</h3><span class="chevron">▼</span></div>
+    <div class="task-body">
+      <div class="hint hint-tip"><span class="hint-icon">💡</span><span>「続けてください」と送信すると再開できます。それでも止まる場合は画像を5枚ずつ分けて送ってみてください。</span></div>
+    </div>
+  </div>
+
+  <div class="task-card" onclick="toggleCard(this)">
+    <div class="task-card-header"><h3 style="font-size:13px;">Googleスライドで文字が崩れている</h3><span class="chevron">▼</span></div>
+    <div class="task-body">
+      <div class="hint hint-tip"><span class="hint-icon">💡</span><span>崩れているテキストを選択 → フォントを「<strong>Noto Sans JP</strong>」に変更してください。</span></div>
+    </div>
+  </div>
+
+  <div class="task-card" onclick="toggleCard(this)">
+    <div class="task-card-header"><h3 style="font-size:13px;">スライドの順番がバラバラになった</h3><span class="chevron">▼</span></div>
+    <div class="task-body">
+      <div class="hint hint-tip"><span class="hint-icon">💡</span><span>Googleスライド左のサムネイル一覧でドラッグして順番を入れ替えられます。</span></div>
+    </div>
+  </div>
+</div>
+
+
+<div class="final-card">
+  <h3>📌 作業のポイントまとめ</h3>
+  <ul class="final-list">
+    <li><span>1️⃣</span><span>STEP1・STEP2は<strong>別々のチャット</strong>で行う（混ざると誤動作）</span></li>
+    <li><span>2️⃣</span><span>FUデザインプロンプト末尾の「（ここに〜）」を削除してからテキストを貼る</span></li>
+    <li><span>3️⃣</span><span>画像はslide_01.pngのように番号付きで保存しておく</span></li>
+    <li><span>4️⃣</span><span>Claudeへの画像添付は20枚まで。それ以上は数回に分けてOK</span></li>
+    <li><span>5️⃣</span><span>修正はClaudeの同じチャットで「〇枚目の〇〇を〇〇に」と指示するだけ</span></li>
+  </ul>
+</div>
+
+</div><!-- /container -->
+
+<script>
+function toggleCard(card) { card.classList.toggle('open') }
+
+const PROMPTS = {
+  "p_step1": "このPDFの内容を、スライド資料を作成するためにテキスト化してください。\n\n以下の形式で出力してください：\n- 章・セクションごとに見出しを付ける\n- 箇条書きは「・」で統一する\n- 図表の内容も文字で説明する\n- ページ番号や装飾文字は不要\n- 読み手が内容を把握できる程度に忠実に書き出す",
+  "p_step2": "あなたは、法人向け営業資料・提案資料に強いプロのスライドデザイナーです。\n\nこれから渡す「テキスト資料の内容」をもとに、添付参考スライドと全く同じデザイン様式で、16:9横長のスライド資料を作成してください。\n\n重要：\nデザインの雰囲気・余白・配色・フォントサイズ・情報整理の型は、添付参考スライドを厳密に踏襲してください。\nただし、スライド内で使用する写真・イラスト・アイコンは、今回渡すテキスト資料の内容に合わせて適切なものへ変更してください。\n\n---\n\n# 参考スライドのデザインルール\n\n## 全体デザイン\n\n・16:9横長スライド\n・白背景をベースにする\n・メインカラーは濃紺\n・アクセントカラーは鮮やかすぎないブルー\n・補助色はライトグレー、淡いブルーグレー\n・法人向け、清潔感、信頼感、実装力が伝わるデザイン\n・余白を広く取り、情報を詰め込みすぎない\n・高級感よりも、読みやすさ・整理感・信頼感を優先する\n・全ページでデザインのルールを統一する\n・日本語ゴシック体を使用する\n・見出しは大きく太字\n・本文は読みやすく、行間を広めに取る\n・小さすぎる注釈文字は使わない\n・7〜8m離れても主要メッセージが読めるサイズ感にする\n\n## フォントサイズ規定（厳守）\n\n全ページ共通：\n・最小フォントサイズは15px。これより小さい文字は一切使用しない\n・以下に指定のないテキストはすべて15px以上にすること\n\n【1枚目：表紙】\n・タイトル：30px\n・下部バナー内テキスト：30px\n・その他本文：15px以上\n\n【2枚目：目次】\n・「目次」の大見出し：50px\n・目次項目・その他テキスト：15px以上\n\n【3枚目以降：本文ページ】\n・左上ページ番号（例：01、02）：22px\n・ページ番号右の英字ラベル（例：MISSION / VISION）：11px ※このテキストのみ例外的に許容\n・ページタイトル（大見出し）：35px\n・タイトル直下の説明文：16px\n・下部バナー内テキスト：23px\n・カード見出し・カード本文・その他テキスト：15px以上（カード見出しは太字）\n\n---\n\n# 共通レイアウトルール\n\n## ヘッダー\n\n各スライド左上に、以下の形式で章番号と英字ラベルを配置する。\n\n例：\n01｜MISSION / VISION / VALUE\n02｜MARKET BACKGROUND\n\n・章番号はブルー\n・縦線または区切り線を入れる\n・英字ラベルは小さめ、字間を広めにする\n・全ページで位置を揃える\n\n## タイトル\n\n・左上寄りに大きく配置\n・濃紺または黒に近い濃紺\n・2行までを基本にする\n・一目でページの主旨が分かる表現にする\n\n## 本文\n\n・タイトル下に2〜3行程度の説明文を配置\n・長文にしすぎず、要点を簡潔にまとめる\n\n## カード\n\n・情報整理にはライトグレーの角丸カードを使用\n・カードには薄い枠線または淡い影を入れる\n・カード内にはブルーのアイコンを配置する\n・カードの見出しは太字\n・カード本文は2〜3行以内にする\n・カード数は基本3枚または4枚\n\n## 下部メッセージバー\n\n各スライド下部に、濃いブルーの横長バーを配置する。\n・左側に白いチェックアイコンを入れる\n・バー内に、そのページの結論メッセージを白文字で入れる\n・文章は短く、力強くする\n\n## フッター\n\n・右下に小さく「FiTNESS UNIVERSITY」と配置する\n\n---\n\n# スライド構成ルール\n\n## 1枚目：表紙\n・会社名または資料名、メインタイトル、サブコピー\n・右側に内容に合う写真、下部に濃いブルーの帯\n\n## 2枚目：目次\n・左側に「CONTENTS / 目次」を大きく配置\n・右側に章立てを01〜07程度で整理\n\n## 3枚目以降：本文ページ\n・左上：章番号＋英字ラベル\n・大見出し、説明文、カード/比較表/フロー/図解\n・下部ブルーバーに結論メッセージ\n\n---\n\n# 文体ルール\n\n・法人向けの落ち着いた表現にする\n・「制度で終わらせない」「仕組みとして実装する」「行動変容まで支援する」のような実装力が伝わる表現を使う\n・1スライド1メッセージを徹底する\n\n---\n\n# 入力するテキスト資料\n\n以下の内容をもとに、上記ルールでスライド資料を作成してください。\n\n（ここにSTEP1でコピーしたテキストを貼り付けてください）",
+  "p_step2b": "1枚目から画像生成",
+  "p_step3": "添付の画像を順番に、編集可能なPPTXに変換してください。\n\n【お願いしたいこと】\n・テキスト・図形・カードをすべてPowerPointのオブジェクトとして再現する\n・Googleスライドで直接テキストをクリックして編集できる状態にする\n・フォントはNoto Sans JP（日本語）/ Arial（英数字）を使用する\n・1枚ずつ確認のプレビュー画像を見せながら順番に進めてください\n・全枚数が完成したら、まとめて1つのPPTXファイルでダウンロードできるようにしてください",
+  "p_fix": "（例1）〇枚目のタイトルを「〇〇〇〇」に変えてください。\n\n（例2）〇枚目の〇番目のカードの本文を以下に差し替えてください：\n「〇〇〇〇〇〇」\n\n（例3）〇枚目を単体でPPTXとしてダウンロードできるようにしてください。"
+};
+
+function bigCopy(id, btn) {
+  if (event) event.stopPropagation();
+  // JS定数から取得（display:none問題を完全回避）
+  const text = PROMPTS[id] || (document.getElementById(id) || {}).textContent || '';
+
+  const doFallback = () => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+  };
+
+  const markDone = () => {
+    const orig = btn.dataset.orig || btn.textContent;
+    btn.dataset.orig = orig;
+    btn.textContent = '✓ コピー済';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = orig; btn.classList.remove('copied'); }, 2500);
+  };
+
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(markDone).catch(() => { doFallback(); markDone(); });
+  } else {
+    doFallback();
+    markDone();
+  }
+}
+
+function toggleExpand(id, btn) {
+  const el = document.getElementById(id);
+  el.classList.toggle('expanded');
+  btn.textContent = el.classList.contains('expanded') ? '▲ 閉じる' : '▼ 全文を表示';
+}
+
+function toggleCheck(li) {
+  li.classList.toggle('checked');
+  li.querySelector('.check-box').textContent = li.classList.contains('checked') ? '✓' : '';
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = document.querySelectorAll('.checklist li').length;
+  const done  = document.querySelectorAll('.checklist li.checked').length;
+  const pct   = done / total;
+  document.querySelectorAll('.p-step').forEach((s, i) => {
+    s.classList.remove('done','active');
+    if (pct >= (i+1)/4) s.classList.add('done');
+    else if (pct > i/4)  s.classList.add('active');
+  });
+  document.getElementById('progressLabel').textContent =
+    done === total ? '完了！🎉' : `STEP ${Math.min(4, Math.floor(pct*4)+1)} / 4`;
+}
+
+window.addEventListener('scroll', () => {
+  const scrollY = window.scrollY + 120;
+  let active = 0;
+  ['step1','step2','step3','step4'].forEach((id, i) => {
+    const el = document.getElementById(id);
+    if (el && el.offsetTop <= scrollY) active = i;
+  });
+  const done = document.querySelectorAll('.checklist li.checked').length;
+  const total = document.querySelectorAll('.checklist li').length;
+  if (done < total) {
+    document.querySelectorAll('.p-step').forEach((s, i) => {
+      s.classList.remove('done','active');
+      if (i < active) s.classList.add('done');
+      else if (i === active) s.classList.add('active');
+    });
+    document.getElementById('progressLabel').textContent = `STEP ${active+1} / 4`;
+  }
+});
+</script>
+</body>
+</html>
